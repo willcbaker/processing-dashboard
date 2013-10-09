@@ -6,17 +6,17 @@ public class DashedCircle extends Widget {
 	float dashWidth = 6;
 	float dashSpacing = 4;
 
-	public DashedCircle(PApplet parent) {
+	public DashedCircle(final PApplet parent) {
 		this.parent = parent;
 	}
 
-	public void setRadius(float rad) {
+	public void setRadius(final float rad) {
 		size.set(rad, 0);
 		this.setShape(Shape.circle);
 	}
 
 	@Override
-	protected void drawShape() {
+	public void drawShape() {
 		parent.pushMatrix();
 		parent.pushStyle();
 		parent.translate(position.x, position.y);
@@ -27,11 +27,11 @@ public class DashedCircle extends Widget {
 	}
 
 	public void createCircle() {
-		int steps = 200;
-		float dashPeriod = dashWidth + dashSpacing;
+		final int steps = 200;
+		final float dashPeriod = dashWidth + dashSpacing;
 		boolean lastDashed = false;
 		for (int i = 0; i < steps; i++) {
-			boolean curDashed = (i % dashPeriod) < dashWidth;
+			final boolean curDashed = (i % dashPeriod) < dashWidth;
 			if (curDashed && !lastDashed) {
 				parent.beginShape();
 			}
@@ -39,7 +39,7 @@ public class DashedCircle extends Widget {
 				parent.endShape();
 			}
 			if (curDashed) {
-				float theta = PApplet.map(i, 0, steps, 0, PApplet.TWO_PI);
+				final float theta = PApplet.map(i, 0, steps, 0, PApplet.TWO_PI);
 				parent.vertex(PApplet.cos(theta) * size.mag(),
 						PApplet.sin(theta) * size.mag());
 			}

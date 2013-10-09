@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> <html><head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <title>ERROR: The requested URL could not be retrieved</title> <style type="text/css"><!--  /*
+ Stylesheet for Squid Error pages
+ Adapted from design by Free CSS Templates
+ http://www.freecsstemplates.org
+ Released for free under a Creative Commons Attribution 2.5 License
+*/
+
+/* Page basics */
+* {
+	font-family: verdana, sans-serif;
+}
+
+html body {
+	margin: 0;
+	padding: 0;
+	background: #0c3868;
+	font-size: 12px;
+	color: #1e1e1e;
+}
+
+/* Page displayed title area */
+#titles {
+	margin-left: 15px;
+	padding: 10px;
+	/*padding-left: 100px;*/
+	padding-left: 220px;
+	/*background: url('http://www.squid-cache.org/Artwork/SN.png') no-repeat left;*/
+	background: url('http://wpad.iavgroup.local/iavlogo.png') no-repeat left;
+}
+
+/* initial title */
+#titles h1 {
+	color: white;
+}
+#titles h2 {
+	color: white;
+}
+
+/* special event: FTP success page titles */
+#titles ftpsuccess {
+	background-color:#00ff00;
+	width:100%;
+}
+
+/* Page displayed body content area */
+#content {
+	padding: 10px;
+	background: #ffffff;
+}
+
+/* General text */
+p {
+}
+
+/* error brief description */
+#error p {
+}
+
+/* some data which may have caused the problem */
+#data {
+}
+
+/* the error message received from the system or other software */
+#sysmsg {
+}
+
+pre {
+    font-family:sans-serif;
+}
+
+/* special event: FTP / Gopher directory listing */
+#dirmsg {
+    font-family: courier;
+    color: black;
+    font-size: 10pt;
+}
+#dirlisting {
+    margin-left: 2%;
+    margin-right: 2%;
+}
+#dirlisting tr.entry td.icon,td.filename,td.size,td.date {
+    border-bottom: groove;
+}
+#dirlisting td.size {
+    width: 50px;
+    text-align: right;
+    padding-right: 5px;
+}
+
+/* horizontal lines */
+hr {
+	margin: 0;
+}
+
+/* page displayed footer area */
+#footer {
+	font-size: 9px;
+	padding-left: 10px;
+        color: darkgray;
+}
+  body :lang(fa) { direction: rtl; font-size: 100%; font-family: Tahoma, Roya, sans-serif; float: right; } :lang(he) { direction: rtl; }  --></style> </head><body id=ERR_ACCESS_DENIED> <div id="titles"> <h1>ERROR</h1> <h2>The requested URL could not be retrieved</h2> </div> <hr>  <div id="content"> <p>The following error was encountered while trying to retrieve the URL: <a href="http://nodejs.org/dist/v0.10.18/x64/node.exe">http://nodejs.org/dist/v0.10.18/x64/node.exe</a></p>  <blockquote id="error"> <p><b>Access Denied.</b></p> </blockquote>  <p>Access control configuration prevents your request from being allowed at this time. Please contact your service provider if you feel this is incorrect.</p>  <p>Your cache administrator is <a href="mailto:it-servicedesk@iav.de?subject=CacheErrorInfo%20-%20ERR_ACCESS_DENIED&amp;body=CacheHost%3A%20gif-ccs-001%0D%0AErrPage%3A%20ERR_ACCESS_DENIED%0D%0AErr%3A%20%5Bnone%5D%0D%0ATimeStamp%3A%20Fri,%2006%20Sep%202013%2008%3A22%3A27%20GMT%0D%0A%0D%0AClientIP%3A%2010.188.57.77%0D%0A%0D%0AHTTP%20Request%3A%0D%0AGET%20%2Fdist%2Fv0.10.18%2Fx64%2Fnode.exe%20HTTP%2F1.1%0AHost%3A%20nodejs.org%0D%0AUser-Agent%3A%20Mozilla%2F5.0%20(Windows%20NT%206.1%3B%20WOW64%3B%20rv%3A23.0)%20Gecko%2F20100101%20Firefox%2F23.0%20IAV%2FFF23%0D%0AAccept%3A%20text%2Fhtml,application%2Fxhtml+xml,application%2Fxml%3Bq%3D0.9,*%2F*%3Bq%3D0.8%0D%0AAccept-Language%3A%20en-gb,en%3Bq%3D0.5%0D%0AAccept-Encoding%3A%20gzip,%20deflate%0D%0AReferer%3A%20http%3A%2F%2Fnodejs.org%2Fdownload%2F%0D%0ACookie%3A%20__utma%3D212211339.819940282.1378455682.1378455682.1378455682.1%3B%20__utmb%3D212211339.3.10.1378455682%3B%20__utmc%3D212211339%3B%20__utmz%3D212211339.1378455682.1.1.utmcsr%3Dgoogle%7Cutmccn%3D(organic)%7Cutmcmd%3Dorganic%7Cutmctr%3D(not%2520provided)%0D%0AConnection%3A%20keep-alive%0D%0APragma%3A%20no-cache%0D%0ACache-Control%3A%20no-cache%0D%0AProxy-Authorization%3A%20Negotiate%20YIIG3QYGKwYBBQUCoIIG0TCCBs2gMDAuBgkqhkiC9xIBAgIGCSqGSIb3EgECAgYKKwYBBAGCNwICHgYKKwYBBAGCNwICCqKCBpcEggaTYIIGjwYJKoZIhvcSAQICAQBuggZ+MIIGeqADAgEFoQMCAQ6iBwMFACAAAACjggULYYIFBzCCBQOgAwIBBaEQGw5JQVZHUk9VUC5MT0NBTKItMCugAwIBAqEkMCIbBEhUVFAbGmdpZi1jY3MtMDAxLmlhdmdyb3VwLmxvY2Fso4IEuTCCBLWgAwIBEqEDAgEDooIEpwSCBKMN7wfMRdm8zWisczp0EPRS8i1FhBEnNI9XmCLSREbnNhOGl1JDhQnXwxWdbpq8+BPNozaAcvXHDWL9%2FAOXUCIEcj+jHDiXmfFTB0vC1Yg5N2pqXiBe1J7yP8V8ZAeYAcT9tPVPxLTlyGSWzZCoRQ3BW0koWHQ5JzkWEcjIbrdrCpvgJwNMcSBGB9uO067u6HYpO%2FWs2h77hCqIgTF+aAuA63IZD%2FFdDcs2u2d8HeJ%2Fvq2DaL14Jt4DygH5wUgevV3Y8y8RTrJ2gq2PfKzArFuBftnZF8S3d5MzS49OtHMZH4tXBpfvT8lMNf7GY2j6uySjLW3oZJ2AfYWG7R2QnD%2Fanj+W5P%2FMLdF2c9gDi+J15ZQRYQDVwB85Xvb%2Flx+61JRbtaU%2F0hKu8lWmHfNzeRvfsdwkapZMRSUyjUdc0RuMRUfPRPK0hqqGYeuD7TANM4fOxijOMhTuaubwypizBrpGEd4xJw6iiGpbETyG65SUN3LK3Te4BL8MqzyEDzoRKsopqrKLxc0dBbZmiqik+JJvk4+xkVYw3yZGLAoN5G42AemiIvYvUxRP%2FWinRe9lf6keU3OcZG1KCevPYgntX6GdNhqQ22aoN7SZK+iizuI5091v74ccH5MHZ+HBcdl3BVMnnukmPFRW4Cs4RFcl6hHjDiGw5EpE0eve7vkSR4Ev08a6OJOq1hhm7BOj0M0ldm%2FZrJ73E89kVlDbbyLt8qItUrmKrEZl7DE87SokhRgZaxEtVboacGgvtcMtHOEi3+PpMIiSc7O0RersQf34YPivTUNQehO%2FUiC4yuPh1UfXE9yRn3Wcqmsbcew2hDGz5gwVSevd5eFXsQXYLfINOTOE7BfE+7uyLgDbt1pG2grK0NU3cuTZ4tUcmbSBKa6UjOqf2Lgq1p1aNrdGG2mSERBB57Y%2FRUSB2vKggtFRLpK5Ax0Tv%2FoBW6t+aTVp1T3EKmPnKq6WKCS+rMNlf2xzK1h7eAZZPhwH1OTYv6GdzSUYVw9OkykykdRhfFiKu4s6Sm0920iYnqAzhgkMAv74m0JevKZZ1tA+B50RnGnWFEosvi7l4QitH8ybtodIm8TJ+pRTDB%2FG2INbWl9ZTv04fd3v5aRJBVYSVPnFB1ZbiO5W2z+vGAAC0YBadIfJICVO+t6nazZrlddW6eo30yCKDJ6Aeuu9nMddvrNvXT+l1UjnuT3rX54k4z9%2FQcNTGpnXOzIXnec+8nD%2FT%2F654Mt1wNcOmYQacxsZjbB%2FgM1sF0g+1koYhbc5azHHjMXJGJqVUDHl4paTR11id8VGq9qL72rCwkoLJ9hxHPnJlCB3RP0gf0Jq6ZKuVZ0nHVPZGyCHmbWDjrYP1LojaR43Wf%2F1g1W2lRhGRipD8cpp4Gm6aCig6CqF6Y40n2qZNQ0bSJUk4OxbfVpN0pp8GtA9x5Cn69p2GhUim1MD6nbbM+ZlMnGkc6hQZSdcgpiOkp7xjaTJRvtmGZ+pk+U1VGcDViMEfQUojNQIwoCcqzPQfH1ELl3R04H0G9DAmVuJ074%2Fp+48FdeINcBJNV84QGZbZweizFcH7ovulquAUZSO3blcMhMpQa3dxaSCAVQwggFQoAMCARKiggFHBIIBQ0o5a5uuFME+drEFitDMA9jHcvp6kRVxIkzBWQNzvCHwBIeIFcSkPBu8LZU1gJttvjkxOctP5XXZbUoz2rXB5O%2FVp+dHFVGXQC+UL+UaNriSfEsVLv2OKGhIFsQOi+km16Apn4r7as3wdc18R4kNr9iONDJ3TMbqU%2FKA3DToMdudIuf63YpsMFimYd4EPS2aIdBkOFstAY1uYTxDm7oAOYLBX+NF+FhbYzOqcXzz63KBSMcz0QKOznHUMfEsx1ZYvFisDBSRs3vBiWoCzq9iGY+yWOoLB1O9tfRYXkc3hn7pm1V1fznTnv+RGvam95EGq73YK8nRAmprN8WCBZv8s9Ssym7X48Q1GTYWsXr7pzh%2Fx1%2Fh3wpXTayAi%2FMLI8MYSDD2Kg2sH+g6G1BVOqOaYL1tcTCShHL7lPC2q7l7vXl7U51o%0D%0A%0D%0A%0D%0A">it-servicedesk@iav.de</a>.</p> <br> </div>  <hr> <div id="footer"> <p>Generated Fri, 06 Sep 2013 08:22:27 GMT by gif-ccs-001 (squid)</p> <!-- ERR_ACCESS_DENIED --> </div> </body></html> 

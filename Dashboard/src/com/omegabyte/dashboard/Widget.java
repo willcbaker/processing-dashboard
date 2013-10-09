@@ -10,7 +10,7 @@ import processing.core.PVector;
 public class Widget {
 
 	public enum Shape {
-		circle, rectangle, custom, image
+		circle, rectangle, custom, image, sphere
 	}
 
 	protected PApplet parent;
@@ -28,6 +28,11 @@ public class Widget {
 	protected float maxSize = 200;
 	protected boolean selected = false;
 	protected boolean movable = true;
+
+	public boolean isMovable() {
+		return movable;
+	}
+
 	protected boolean rotatable = false;
 
 	protected boolean scalable = false;
@@ -47,7 +52,7 @@ public class Widget {
 
 	protected String text = "";
 	protected String title = "";
-	private PImage texture;
+	protected PImage texture;
 	private PShape pShape;
 
 	float cornerRad = 10;
@@ -110,16 +115,16 @@ public class Widget {
 
 	private boolean showing;
 
-	public void setShowing(boolean thisWidget, boolean dashboard) {
+	public void setShowing(final boolean thisWidget, final boolean dashboard) {
 		showing = thisWidget;
-		for (Dashboard menu : menus) {
+		for (final Dashboard menu : menus) {
 			menu.setShowing(dashboard);
 		}
 	}
 
-	public Widget setShowing(boolean value) {
+	public Widget setShowing(final boolean value) {
 		showing = value;
-		for (Dashboard menu : menus) {
+		for (final Dashboard menu : menus) {
 			menu.setShowing(value);
 		}
 		return this;
@@ -128,21 +133,32 @@ public class Widget {
 	public void draw() {
 		if (hidden && !showing)
 			return;
-		parent.pushStyle();
 		parent.pushMatrix();
 		parent.translate(getPosition().x, getPosition().y);
 		parent.rotate(-orientation);
 		drawShape();
 		parent.popMatrix();
-		parent.popStyle();
 		if (selected)
 			displayAllMenus();
 		else
 			displayMenus();
 	}
 
-	protected void drawShape() {
+	public void drawShape() {
 		switch (shape) {
+		case sphere:
+			parent.hint(PApplet.ENABLE_DEPTH_TEST);
+			parent.fill(color, 255);
+			parent.pushMatrix();
+			parent.translate(size.mag() / 2, size.mag() / 2);
+			parent.noStroke();
+			parent.rotate(orientation);
+			// parent.rotateX(-orientation);
+			parent.sphere(size.mag() / 2);
+			parent.popMatrix();
+			// parent.directionalLight(0, 255, 0, 0, -1, 0);
+			parent.hint(PApplet.DISABLE_DEPTH_TEST);
+			break;
 		case rectangle:
 			parent.rectMode(PApplet.CORNER);
 			if (selected && selectable) {
@@ -160,13 +176,11 @@ public class Widget {
 			if (selected) {
 				parent.fill(0, 125);
 				parent.noStroke();
-				parent.ellipse(getPosition().x - 5, getPosition().y + 5,
-						getSize().mag(), getSize().mag());
+				parent.ellipse(-5, 5, getSize().mag(), getSize().mag());
 			}
-			parent.stroke(0);
+			parent.noStroke();
 			parent.fill(color, getAlpha());
-			parent.ellipse(getPosition().x, getPosition().y, getSize().mag(),
-					getSize().mag());
+			parent.ellipse(0, 0, getSize().mag(), getSize().mag());
 			drawText();
 			parent.text(title, size.x / 2, size.y / 2);
 			break;
@@ -345,7 +359,8 @@ public class Widget {
 			}
 			break;
 		case circle:
-			if ((PVector.add(position, size).dist(location)) < (size.mag())) {
+			if ((PVector.add(position, new PVector(size.mag() / 2,
+					size.mag() / 2)).dist(location)) < (size.mag() / 2)) {
 				hover = location;
 			}
 			break;
@@ -362,6 +377,12 @@ public class Widget {
 					&& location.x < this.position.x + this.size.x / 2
 					&& location.y > this.position.y - this.size.y / 2
 					&& location.y < this.position.y + this.size.y / 2) {
+				hover = location;
+			}
+			break;
+		case sphere:
+			if ((PVector.add(position, new PVector(size.mag() / 2,
+					size.mag() / 2)).dist(location)) < (size.mag() / 2)) {
 				hover = location;
 			}
 			break;
@@ -589,6 +610,8 @@ public class Widget {
 
 	public Widget setShape(final Shape shape) {
 		this.shape = shape;
+		if (shape == Shape.sphere)
+			setAlpha(255);
 		return this;
 	}
 

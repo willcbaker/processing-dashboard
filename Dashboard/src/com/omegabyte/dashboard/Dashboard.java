@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-import com.omegabyte.tools.MouseHandler;
-
 public class Dashboard {
 	PApplet parent = null;
 	ArrayList<Widget> widgets = new ArrayList<Widget>();
@@ -18,13 +16,12 @@ public class Dashboard {
 	PVector grabbed = new PVector(0, 0);
 	private boolean hidden = false;
 	private String name;
-	private MouseHandler mouse;
 
 	private boolean showing;
 
 	public Dashboard(final PApplet app) {
 		parent = app;
-		empty = new Widget(parent).setHidden(true).setMovable(false)
+		empty = new Widget(parent, "EMPTY").setHidden(true).setMovable(false)
 				.setTitle("EMPTY").setEmpty(true);
 		moving = empty;// prevents moving objects until selected
 		background = empty;
@@ -73,6 +70,8 @@ public class Dashboard {
 	}
 
 	public Widget getOwner() {
+		if (owner == null)
+			owner = empty;
 		return owner;
 	}
 
@@ -199,7 +198,12 @@ public class Dashboard {
 		background = widget;
 		widget.setOwner(this);
 		widget.setBackground(true);
+		// UPDATE THIS TO A DEQUE in later revisions
+		final ArrayList<Widget> copy = new ArrayList<Widget>();
+		copy.addAll(widgets);
+		widgets.clear();
 		widgets.add(background);
+		widgets.addAll(copy);
 		return this;
 	}
 
@@ -223,14 +227,14 @@ public class Dashboard {
 		owner = widget;
 	}
 
-	public Dashboard setShowing(boolean showing) {
+	public Dashboard setShowing(final boolean showing) {
 		this.showing = showing;
 		return this;
 	}
 
 	public void show() {
 		setShowing(true);
-		for (Widget widget : widgets) {
+		for (final Widget widget : widgets) {
 			widget.setShowing(true);
 		}
 	}
@@ -247,9 +251,8 @@ public class Dashboard {
 	}
 
 	public void update() {
-		if (mouse == null)
-			mouse = new MouseHandler(parent);
-		update(mouse.get(), mouse.isGrab(), false, 1, false, 0);
+		update(parent.mouseX, parent.mouseY, parent.mousePressed, false, 1,
+				false, 0);
 	}
 
 	/**
@@ -281,12 +284,19 @@ public class Dashboard {
 					rotating, rotation));
 		pickup(handler.moving, location);
 		// System.out.println(handler);
-		if (moving.isBackground() && moving.getOwner().isMovable()) {
-			moving.getOwner().move(PVector.add(location, grabbed));
-		}
-		if (moving != empty) {
-			moving.move(PVector.add(location, grabbed));
-			bringToFront(moving);
+		if (moving != null) {
+			if (moving != empty && !moving.isBackground()) {
+				if (!moving.isMovable()) {
+					// while (moving.getOwner().getOwner() != null)
+					// moving = moving.getOwner().getOwner();
+				} else {
+					moving.move(PVector.add(location, grabbed));
+					bringToFront(moving);
+				}
+			}
+			if (moving.isBackground() && moving.getOwner().isMovable()) {
+				moving.getOwner().move(PVector.add(location, grabbed));
+			}
 		}
 		if (handler.scale != empty)
 			handler.scale.resize(scale);
@@ -354,21 +364,24 @@ class Handler {
 		this.hover = rotate;
 	}
 
-	public boolean handle(final Handler handle) {
+	public boolean handle(final Handler incoming) {
 		if (empty == null) {
-			// System.out.println("Error, Empty-null");
+			System.out.println("Error, Empty-null");
 			return false;
 		}
-		if (!handle.moving.isEmpty()
-				|| (this.moving.isEmpty() && handle.moving.isBackground()))
-			moving = handle.moving;
-		if (!handle.scale.isEmpty()
-				|| (this.scale.isEmpty() && handle.scale.isBackground()))
-			scale = handle.scale;
-		if (!handle.rotate.isEmpty())
-			rotate = handle.rotate;
-		if (handle.hover.isEmpty())
-			hover = handle.hover;
+		// System.out.println("\n **Got: \n" + incoming);
+		if (!incoming.moving.isEmpty()
+				|| (this.moving.isEmpty() && incoming.moving.isBackground()))
+			moving = incoming.moving;
+		if (!incoming.scale.isEmpty()
+				|| (this.scale.isEmpty() && incoming.scale.isBackground()))
+			scale = incoming.scale;
+		if (!incoming.rotate.isEmpty())
+			rotate = incoming.rotate;
+		if (incoming.hover.isEmpty())
+			hover = incoming.hover;
+
+		// System.out.println("\n ***Output: \n" + this);
 		return true;
 	}
 
@@ -383,9 +396,8 @@ class Handler {
 
 	@Override
 	public String toString() {
-		return "Handler [moving=" + moving.getTitle() + ", scale="
-				+ scale.getTitle() + ", rotate=" + rotate.getTitle()
-				+ ", empty=" + (empty == null ? "NULL" : empty.getTitle())
-				+ "]";
+		return "Handler [moving=" + moving.getName() + ", scale="
+				+ scale.getName() + ", rotate=" + rotate.getName() + ", empty="
+				+ (empty == null ? "NULL" : empty.getName()) + "]";
 	}
 }
