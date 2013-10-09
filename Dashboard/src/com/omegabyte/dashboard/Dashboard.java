@@ -9,6 +9,11 @@ public class Dashboard {
 	PApplet parent = null;
 	ArrayList<Widget> widgets = new ArrayList<Widget>();
 	Widget moving = null;
+
+	public Widget getMoving() {
+		return moving;
+	}
+
 	Widget empty = null;
 	Widget background = null;
 	private Widget owner = null;

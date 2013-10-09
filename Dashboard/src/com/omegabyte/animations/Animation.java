@@ -10,6 +10,15 @@ public class Animation extends Thread {
 	boolean running; // Is the thread running? Yes or no?
 	int _wait; // How many milliseconds should we wait in between executions?
 	String id; // Thread name
+
+	public String getID() {
+		return id;
+	}
+
+	public void setID(final String id) {
+		this.id = id;
+	}
+
 	int count; // counter
 	Widget widget;
 	Dashboard dash;
@@ -28,6 +37,11 @@ public class Animation extends Thread {
 
 	public void setWidget(final Widget widget) {
 		this.widget = widget;
+		id = widget.getName();
+		alphaCopy = widget.getAlpha();
+		positionCopy = widget.getPosition().get();
+		System.out.println("copy " + positionCopy);
+		sizeCopy = widget.getSize();
 	}
 
 	long timeBegin;
@@ -40,6 +54,8 @@ public class Animation extends Thread {
 	long _fadeOut = 0;
 	long shaker;
 	private float distance;
+	private float speed;
+	private long timeOut;
 
 	public void setShaker(final long val, final float dist) {
 		shaker = val;
@@ -106,7 +122,11 @@ public class Animation extends Thread {
 		if (!this.running) {
 			timeBegin = widget.getParent().millis();
 			timeEnd = timeBegin + _duration;
+			timeOut = (timeEnd - _fadeOut);
 			this.running = true;
+		} else {
+			timeEnd = widget.getParent().millis() + _duration;
+			timeOut = (timeEnd - _fadeOut);
 		}
 		System.out.println(id + " Triggered");
 	}
@@ -140,20 +160,15 @@ public class Animation extends Thread {
 				try {
 					// System.out.println("running"); // {
 					fadeIn(_fadeIn);
-					// wait(_duration-_fadeIn-_fadeOut);
+					// wait2(_duration - _fadeIn - _fadeOut);
 					fadeOut(_fadeOut);
 					shake(shaker);
+					move(speed);
 				} catch (final Exception e) {
 					e.printStackTrace();
 				}
 			}
 			running = false;
-			// Ok, let's wait for however long we should wait
-			try {
-				sleep((_wait));
-			} catch (final Exception e) {
-
-			}
 			try {
 				sleep((_wait));
 			} catch (final Exception e) {
@@ -193,7 +208,6 @@ public class Animation extends Thread {
 	void fadeOut(final long duration) {
 		if (duration < 1)
 			return;
-		final long timeOut = (timeEnd - duration);
 		while (running && widget.getParent().millis() < timeEnd) {
 			// println(id + ": " +millis() + " alpha: " + widget.alpha+
 			// " alpha: " + alphaCopy + " " + widget.hidden);
@@ -239,7 +253,28 @@ public class Animation extends Thread {
 		}
 	}
 
-	void wait(final float duration) {
+	void move(final float speed) {
+		final PVector direction = PVector.sub(widget.getPosition(),
+				positionCopy);
+		direction.setMag(speed);
+		direction.mult(-1);
+		// System.out.println("old: " + positionCopy);
+		// System.out.println("pos: " + widget.getPosition());
+		// System.out.println("dir: " + direction);
+		while (running
+				&& PVector.dist(widget.getPosition(), positionCopy) > speed + 1) {
+			widget.move(PVector.add(widget.getPosition(), direction));
+			// Ok, let's wait for however long we should wait
+			try {
+				sleep((_wait));
+			} catch (final Exception e) {
+			}
+		}
+		widget.setPosition(positionCopy.get());
+		running = false;
+	}
+
+	void wait2(final float duration) {
 		if (duration < 1)
 			return;
 		try {
@@ -253,8 +288,13 @@ public class Animation extends Thread {
 		running = false;
 	}
 
-	public void setRadiate(long sendDuration) {
+	public void setRadiate(final long sendDuration) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public void setSnap(final float speed) {
+		this.speed = speed;
 
 	}
 }

@@ -28,40 +28,48 @@ public class Widget {
 	protected float maxSize = 200;
 	protected boolean selected = false;
 	protected boolean movable = true;
-
-	public boolean isMovable() {
-		return movable;
-	}
+	protected boolean snap = false;
 
 	protected boolean rotatable = false;
 
 	protected boolean scalable = false;
+
 	protected boolean selectable = true;
+
 	protected boolean hidden = false;
+
 	protected boolean background = false;
 	protected PVector hover = null;
 	protected boolean empty = false;
 	protected boolean fixed = false;
-
 	protected float alpha = 126;
 	protected int color = 0xFFB0B0FB;
 	protected int textColor = 0;
 
 	protected float textSize = -1;
 	protected float titleSize = -1;
-
 	protected String text = "";
+
 	protected String title = "";
 	protected PImage texture;
-	private PShape pShape;
 
+	private PShape pShape;
 	float cornerRad = 10;
 	String textureFile;
-
 	float orientation = 0;
-	float rotateMax = PApplet.radians(5);
+
+	float maxRotation = 0;
+
+	public void setMaxRotation(final float maxRotation) {
+		this.maxRotation = maxRotation;
+	}
+
 	private boolean autoHide = true;
+
 	protected String name;
+	private boolean showing;
+	protected float snapSpeed = 10;
+	private PVector snapPosition = new PVector(0, 0, 0);
 
 	public Widget() {
 	}
@@ -82,13 +90,13 @@ public class Widget {
 		return this;// menus.size();
 	}
 
-	private void displayAllMenus() {
+	protected void displayAllMenus() {
 		for (final Dashboard menu : menus) {
 			menu.draw();
 		}
 	}
 
-	private void displayMenu(final Dashboard menu) {
+	protected void displayMenu(final Dashboard menu) {
 		if (menu.widgets.isEmpty())
 			return;
 		// menu.handle(parent.mouseX - position.x, parent.mouseY - position.y,
@@ -113,23 +121,6 @@ public class Widget {
 			displayMenu(menu);
 	}
 
-	private boolean showing;
-
-	public void setShowing(final boolean thisWidget, final boolean dashboard) {
-		showing = thisWidget;
-		for (final Dashboard menu : menus) {
-			menu.setShowing(dashboard);
-		}
-	}
-
-	public Widget setShowing(final boolean value) {
-		showing = value;
-		for (final Dashboard menu : menus) {
-			menu.setShowing(value);
-		}
-		return this;
-	}
-
 	public void draw() {
 		if (hidden && !showing)
 			return;
@@ -147,7 +138,7 @@ public class Widget {
 	public void drawShape() {
 		switch (shape) {
 		case sphere:
-			parent.hint(PApplet.ENABLE_DEPTH_TEST);
+			// parent.hint(PApplet.ENABLE_DEPTH_TEST);
 			parent.fill(color, 255);
 			parent.pushMatrix();
 			parent.translate(size.mag() / 2, size.mag() / 2);
@@ -157,7 +148,7 @@ public class Widget {
 			parent.sphere(size.mag() / 2);
 			parent.popMatrix();
 			// parent.directionalLight(0, 255, 0, 0, -1, 0);
-			parent.hint(PApplet.DISABLE_DEPTH_TEST);
+			// parent.hint(PApplet.DISABLE_DEPTH_TEST);
 			break;
 		case rectangle:
 			parent.rectMode(PApplet.CORNER);
@@ -173,7 +164,7 @@ public class Widget {
 			break;
 		case circle:
 			parent.ellipseMode(PApplet.CORNER);
-			if (selected) {
+			if (selected && selectable) {
 				parent.fill(0, 125);
 				parent.noStroke();
 				parent.ellipse(-5, 5, getSize().mag(), getSize().mag());
@@ -190,14 +181,14 @@ public class Widget {
 			if (selected && selectable) {
 				parent.fill(0, 125);
 				parent.noStroke();
-				pShape.disableStyle();
+				getpShape().disableStyle();
 				parent.pushMatrix();
 				parent.translate(-5, 5);
-				parent.shape(pShape);
+				parent.shape(getpShape());
 				parent.popMatrix();
-				pShape.enableStyle();
+				getpShape().enableStyle();
 			}
-			parent.shape(pShape, 0, 0);
+			parent.shape(getpShape(), 0, 0);
 			parent.popMatrix();
 			break;
 		case image:
@@ -223,7 +214,8 @@ public class Widget {
 	}
 
 	private void drawText() {
-		parent.fill(textColor, (float) (alpha * 1.1));
+		parent.fill(textColor,
+				PApplet.constrain((float) (alpha * 1.1), 0f, 255f));
 		parent.textAlign(PApplet.CENTER);
 		parent.textSize(getTextSize());
 		parent.text(text, size.x / 2, size.y / 2 + textSize / 2);
@@ -233,6 +225,9 @@ public class Widget {
 
 	public void drop() {
 		selected = false;
+		if (this.isSnap()) {
+			snap();
+		}
 	}
 
 	public float getAlpha() {
@@ -241,10 +236,6 @@ public class Widget {
 
 	public int getColor() {
 		return color;
-	}
-
-	public int getTextColor() {
-		return textColor;
 	}
 
 	public Dashboard getMenu(final String name) {
@@ -275,6 +266,10 @@ public class Widget {
 		return position;
 	}
 
+	public PShape getpShape() {
+		return pShape;
+	}
+
 	public Shape getShape() {
 		return shape;
 	}
@@ -285,6 +280,10 @@ public class Widget {
 
 	public String getText() {
 		return text;
+	}
+
+	public int getTextColor() {
+		return textColor;
 	}
 
 	float getTextSize() {
@@ -333,7 +332,7 @@ public class Widget {
 		return hidden;
 	}
 
-	boolean isHover() {
+	public boolean isHover() {
 		// if (isBackground())
 		// System.out.println("isHover(): " + getTitle() + "hover: " + hover
 		// + " hidden: " + hidden);
@@ -401,8 +400,8 @@ public class Widget {
 		return isHover();
 	}
 
-	void setHover(final PVector location) {
-		hover = location;
+	public boolean isMovable() {
+		return movable;
 	}
 
 	public boolean isRotatable() {
@@ -417,20 +416,31 @@ public class Widget {
 		return selected;
 	}
 
-	public Widget loadShape(final String filename) {
-		shape = Shape.custom;
-		pShape = parent.loadShape(filename);
-		return this;
+	public boolean isSnap() {
+		return snap;
 	}
 
 	public Widget loadImage(final String filename) {
 		textureFile = filename;
 		setImage(parent.loadImage(textureFile));
+		setShape(Shape.image);
 		final float tempW = getTexture().width;
 		final float tempH = getTexture().height;
 		final float ratio = tempW / tempH;
-		getTexture().resize((int) (getSize().x), (int) (getSize().x / ratio));
-		getSize().set(getSize().x, getTexture().height);// = texture.height;
+		try {
+			getTexture().resize((int) (getSize().x),
+					(int) (getSize().x / ratio));
+			getSize().set(getSize().x, getTexture().height);// = texture.height;
+		} catch (final Exception e) {
+			System.out
+					.println("Error resizing image.  Must first setSize(...)");
+		}
+		return this;
+	}
+
+	public Widget loadShape(final String filename) {
+		shape = Shape.custom;
+		setpShape(parent.loadShape(filename));
 		return this;
 	}
 
@@ -442,11 +452,7 @@ public class Widget {
 	}
 
 	public boolean move(final float x, final float y) {
-		if (!movable) {
-			return false;
-		}
-		setPosition(x, y);
-		// System.out.println("movingMe " + position.x + "," + position.y);
+		move(new PVector(x, y));
 		return true;
 	}
 
@@ -476,7 +482,7 @@ public class Widget {
 		if (newSize > minSize && newSize < maxSize) {
 			size.mult(scale);
 			if (shape == Shape.custom) {
-				pShape.scale(scale);
+				getpShape().scale(scale);
 				// System.out.println("scale:  " + scale);
 			}
 			if (getTexture() != null) {
@@ -496,8 +502,11 @@ public class Widget {
 	public void rotate(final float value) {
 		if (!rotatable)
 			return;
-		orientation = PApplet.constrain(orientation + value, -rotateMax,
-				rotateMax);
+		if (maxRotation == 0)// no maximum
+			orientation += value;
+		else
+			orientation = PApplet.constrain(orientation + value, -maxRotation,
+					maxRotation);
 	}
 
 	public Widget setAlpha(final float alpha) {
@@ -545,6 +554,20 @@ public class Widget {
 		return this;
 	}
 
+	void setHover(final PVector location) {
+		hover = location;
+	}
+
+	public Widget setImage(final PImage image) {
+		if (image == null) {
+			setShape(Shape.rectangle);
+		} else {
+			setShape(Shape.image);
+			this.texture = image;
+		}
+		return this;
+	}
+
 	public Widget setMaxSize(final float maxSize) {
 		this.maxSize = maxSize;
 		return this;
@@ -586,6 +609,10 @@ public class Widget {
 		return this;
 	}
 
+	public void setpShape(final PShape pShape) {
+		this.pShape = pShape;
+	}
+
 	public Widget setRotatable(final boolean val) {
 		rotatable = val;
 		return this;
@@ -615,6 +642,26 @@ public class Widget {
 		return this;
 	}
 
+	public Widget setShowing(final boolean value) {
+		showing = value;
+		for (final Dashboard menu : menus) {
+			menu.setShowing(value);
+		}
+		return this;
+	}
+
+	public void setShowing(final boolean thisWidget, final boolean dashboard) {
+		showing = thisWidget;
+		for (final Dashboard menu : menus) {
+			menu.setShowing(dashboard);
+		}
+	}
+
+	public Widget setCenter(final float x, final float y) {
+		setPosition(x - size.mag() / 2, y - size.mag() / 2);
+		return this;
+	}
+
 	public Widget setSize(final float rad) {
 		size.set(rad, 0);
 		return this;
@@ -627,6 +674,16 @@ public class Widget {
 
 	public Widget setSize(final PVector size) {
 		this.size = size;
+		return this;
+	}
+
+	public Widget setSnap(final boolean snap) {
+		this.snap = snap;
+		return this;
+	}
+
+	public Widget setSnapSpeed(final float snapSpeed) {
+		this.snapSpeed = snapSpeed;
 		return this;
 	}
 
@@ -650,16 +707,6 @@ public class Widget {
 		return this;
 	}
 
-	public Widget setImage(final PImage image) {
-		if (image == null) {
-			setShape(Shape.rectangle);
-		} else {
-			setShape(Shape.image);
-			this.texture = image;
-		}
-		return this;
-	}
-
 	public Widget setTitle(final String title) {
 		this.title = title;
 		if (titleSize < 1) {
@@ -673,6 +720,45 @@ public class Widget {
 			titleSize = -(float) (this.size.mag() * 0.1);
 		} else
 			titleSize = size;
+		return this;
+	}
+
+	private void snap() {
+		final Widget widget = this;
+		final Thread t = new Thread() {
+			@Override
+			public void run() {
+				final PVector direction = PVector.sub(widget.getPosition(),
+						widget.snapPosition);
+				float speed = PVector.dist(widget.getPosition(),
+						widget.snapPosition) * snapSpeed / 100;
+				if (speed < 5)
+					speed = 5;
+				direction.setMag(speed);
+				direction.mult(-1);
+				// System.out.println("old: " + widget.snapPosition);
+				// System.out.println("pos: " + widget.getPosition());
+				// System.out.println("dir: " + direction);
+				while (PVector.dist(widget.getPosition(), widget.snapPosition) > PVector
+						.dist(PVector.add(widget.getPosition(), direction),
+								widget.snapPosition)) {
+					widget.move(PVector.add(widget.getPosition(), direction));
+					// Ok, let's wait for however long we should wait
+					try {
+						sleep((long) (1000 / parent.frameRate));
+					} catch (final Exception e) {
+					}
+				}
+				widget.setPosition(snapPosition.get());
+
+			}
+		};
+		t.start();
+	}
+
+	public Widget snapTo(final PVector pVector) {
+		snapPosition = pVector;
+		this.setSnap(true);
 		return this;
 	}
 

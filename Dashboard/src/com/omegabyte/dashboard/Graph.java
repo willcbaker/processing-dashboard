@@ -1,6 +1,9 @@
 package com.omegabyte.dashboard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -24,6 +27,15 @@ public class Graph extends Widget {
 	boolean windowed = false;
 	ArrayList<int[]> windows = new ArrayList<int[]>();
 	private Type type = Type.POINT;
+	private boolean autoColor = false;
+
+	HashMap<Float, String> labels = new HashMap<Float, String>();
+
+	boolean displayLabels = true;
+
+	boolean displayTrace = true;
+
+	private float markerSize = 2;
 
 	public Graph(final PApplet parent) {
 		this.parent = parent;
@@ -49,6 +61,10 @@ public class Graph extends Widget {
 		titleSize = 10;
 	}
 
+	public void addLabel(final float value, final String text) {
+		labels.put(value, text);
+	}
+
 	private double calcMax() {
 		max = 0;
 		for (final double point : data)
@@ -71,6 +87,7 @@ public class Graph extends Widget {
 		parent.pushMatrix();
 		if (autoScale)
 			update();
+		parent.textAlign(PApplet.CENTER, PApplet.BOTTOM);
 		parent.fill(50, 125);
 		parent.stroke(0);
 		parent.rectMode(PApplet.CORNER);
@@ -81,10 +98,12 @@ public class Graph extends Widget {
 		// parent.textFont(graphFont);
 		parent.textSize(titleSize);
 		parent.text(title, size.x / 2, titleSize + 2);
-		parent.fill(color);
-		parent.stroke(color);
 		if (isHover(parent.mouseX, parent.mouseY))
 			trace();
+		if (isDisplayLabels())
+			drawLabels();
+		parent.fill(color);
+		parent.stroke(color);
 		parent.translate(2, titleSize + 6);
 		switch (type) {
 		case POINT:
@@ -102,6 +121,29 @@ public class Graph extends Widget {
 		}
 		parent.popStyle();
 		parent.popMatrix();
+	}
+
+	void drawLabels() {
+		parent.fill(textColor);
+		final Iterator<Entry<Float, String>> iter = labels.entrySet()
+				.iterator();
+
+		while (iter.hasNext()) {
+			final Entry<Float, String> mEntry = iter.next();
+			// System.out.println(mEntry.getKey() + " : " +
+			// mEntry.getValue());
+			if (autoColor)
+				parent.fill((int) (PApplet.map(mEntry.getKey(), (float) min,
+						(float) max, 0xFF022020, 0xFF06FFBB)));
+			parent.text(
+					mEntry.getValue().toString(),
+					position.x + size.x / 2,
+					position.y
+							+ PApplet.map((mEntry.getKey()), (float) this.min,
+									(float) this.max, this.size.y, 0));
+		}
+		// for (java.util.Collection thing : labels.values())
+		// for (float value : thing)
 	}
 
 	void drawWindows() {
@@ -203,6 +245,18 @@ public class Graph extends Widget {
 				+ index * scale(), position.y + size.y);
 	}
 
+	public boolean isAutoColor() {
+		return autoColor;
+	}
+
+	public boolean isDisplayLabels() {
+		return displayLabels;
+	}
+
+	public boolean isDisplayText() {
+		return displayTrace;
+	}
+
 	boolean isWindowed(final int index) {
 		boolean windowed = false;
 		for (final int[] window : windows) {
@@ -210,6 +264,10 @@ public class Graph extends Widget {
 				windowed = true;
 		}
 		return windowed;
+	}
+
+	public void plot(final Graph.Type type) {
+
 	}
 
 	void plotFill() {
@@ -239,14 +297,34 @@ public class Graph extends Widget {
 	}
 
 	void plotPoint() {
+
 		// normalize to scale
 		float index = 0;
 		final float by = scale();
+		parent.noStroke();
 		for (final double point : data) {
-			parent.ellipse(index, PApplet.map((float) (point), (float) min,
-					(float) max, size.y, 0), 2, 2);
+
+			final float pointY = position.y
+					+ PApplet.map((float) (point), (float) this.min,
+							(float) this.max, this.size.y, 0);
+			if (pointY >= position.y && pointY <= position.y + size.y) {
+				if (autoColor)
+					parent.fill((int) (PApplet.map((float) point, (float) min,
+							(float) max, 0xFF022020, 0xFF06FFBB)));
+				parent.ellipse(index, PApplet.map((float) (point), (float) min,
+						(float) max, size.y, 0), markerSize, markerSize);
+			}
 			index += by;
 		}
+
+		// {
+		// if (autoColor)
+		// parent.fill((int) (PApplet.map((float) point, (float) min,
+		// (float) max, 0xFF022020, 0xFF06FFBB)));
+		// parent.ellipse(index, PApplet.map((float) (point), (float) min,
+		// (float) max, size.y, 0), markerSize, markerSize);
+		// index += by;
+		// }
 	}
 
 	float scale() {
@@ -257,6 +335,10 @@ public class Graph extends Widget {
 	public Graph setAlpha(final float alpha) {
 		super.setAlpha(alpha);
 		return this;
+	}
+
+	public void setAutoColor(final boolean autoColor) {
+		this.autoColor = autoColor;
 	}
 
 	public Graph setAutoScale(final boolean state) {
@@ -284,6 +366,14 @@ public class Graph extends Widget {
 		return this;
 	}
 
+	public void displayLabels(final boolean displayLabels) {
+		this.displayLabels = displayLabels;
+	}
+
+	public void displayTrace(final boolean val) {
+		this.displayTrace = val;
+	}
+
 	@Override
 	public Graph setEmpty(final boolean empty) {
 		super.setEmpty(empty);
@@ -300,6 +390,10 @@ public class Graph extends Widget {
 	public Graph setHidden(final boolean val) {
 		super.setHidden(val);
 		return this;
+	}
+
+	public void setMarkerSize(final float size) {
+		markerSize = size;
 	}
 
 	public Graph setMax(final double val) {
@@ -442,10 +536,14 @@ public class Graph extends Widget {
 	}
 
 	private void trace() {
+		if (!displayTrace)
+			return;
 		final String value = String.format("%.2g%n",
 				data[(int) ((parent.mouseX - position.x) / scale())]);
-		parent.text(value, size.x - value.length() * titleSize / 2,
-				titleSize + 2);
+
+		// parent.text(title, size.x / 2, titleSize + 2);
+		parent.text(value, size.x - value.length() * titleSize + 2,
+				titleSize * 2 + 2);
 		// parent.text(value, parent.mouseX - position.x + 15, parent.mouseY -
 		// 15);
 	}

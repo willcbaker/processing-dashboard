@@ -33,22 +33,29 @@ public class Sphere extends Widget {
 			parent.rotateY(rotationY);
 			parent.rotateX(rotationX);
 			parent.rotateX(rotationZ);
-			parent.hint(PApplet.ENABLE_DEPTH_TEST);
+			// parent.hint(PApplet.ENABLE_DEPTH_TEST);
 			texturedSphere(size.mag(), texture);
-			parent.hint(PApplet.DISABLE_DEPTH_TEST);
+			// parent.hint(PApplet.DISABLE_DEPTH_TEST);
 			parent.popMatrix();
 		} else {
-			parent.hint(PApplet.ENABLE_DEPTH_TEST);
-			parent.fill(color, 255);
+			// parent.hint(PApplet.ENABLE_DEPTH_TEST);
 			parent.pushMatrix();
-			parent.translate(size.mag() / 2, size.mag() / 2);
+			parent.translate(size.mag() / 2, size.mag() / 2, 0);
+			parent.rotateY(rotationY);
+			parent.rotateX(rotationX);
+			parent.rotateX(rotationZ);
+
 			parent.noStroke();
-			parent.rotate(orientation);
+			parent.fill(color, 255);
+			parent.translate(0, 0, size.mag() / 2);
+			parent.rotateZ(PApplet.HALF_PI);
+			parent.shape(getpShape());
+			// parent.rotate(orientation);
 			// parent.rotateX(-orientation);
-			parent.sphere(size.mag() / 2);
+			// parent.sphere(size.mag() / 2);
 			parent.popMatrix();
 			// parent.directionalLight(0, 255, 0, 0, -1, 0);
-			parent.hint(PApplet.DISABLE_DEPTH_TEST);
+			// parent.hint(PApplet.DISABLE_DEPTH_TEST);
 		}
 	}
 
