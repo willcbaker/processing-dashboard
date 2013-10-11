@@ -135,7 +135,7 @@ public class Widget {
 			displayMenus();
 	}
 
-	public void drawShape() {
+	protected void drawShape() {
 		switch (shape) {
 		case sphere:
 			// parent.hint(PApplet.ENABLE_DEPTH_TEST);
