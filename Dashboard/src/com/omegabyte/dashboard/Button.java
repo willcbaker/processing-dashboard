@@ -58,6 +58,8 @@ public class Button extends Widget {
 
 	@Override
 	public boolean isHover(final PVector location) {
+		if (isHidden() && !isShowing())
+			return false;
 		boolean hover = false;
 		parent.stroke(0);
 		if (super.isHover(location)) {

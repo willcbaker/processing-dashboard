@@ -86,17 +86,18 @@ public class Graph extends Widget {
 		parent.pushMatrix();
 		if (autoScale)
 			update();
-		parent.textAlign(PApplet.CENTER, PApplet.BOTTOM);
+		parent.textAlign(PApplet.CENTER, PApplet.CENTER);
 		parent.fill(50, 125);
 		parent.stroke(0);
 		parent.rectMode(PApplet.CORNER);
 		parent.translate(position.x, position.y);
-		parent.rect(0, 0, size.x + 2, titleSize + 4);
-		parent.rect(0, 0, size.x + 2, size.y + titleSize + 8);
+		parent.rect(0, 0, size.x + markerSize, titleSize + 4);
+		parent.rect(0, 0, size.x + markerSize, size.y + titleSize + 2
+				* markerSize);
 		parent.fill(textColor);
 		// parent.textFont(graphFont);
 		parent.textSize(titleSize);
-		parent.text(title, size.x / 2, titleSize + 2);
+		parent.text(title, size.x / 2, titleSize / 2 + 1);
 		if (isHover(parent.mouseX, parent.mouseY))
 			trace();
 		if (isDisplayLabels())
@@ -540,8 +541,8 @@ public class Graph extends Widget {
 				data[(int) ((parent.mouseX - position.x) / scale())]);
 
 		// parent.text(title, size.x / 2, titleSize + 2);
-		parent.text(value, size.x - value.length() * titleSize + 2,
-				titleSize * 2 + 2);
+		parent.text(value, size.x - value.length() * titleSize / 2 + 2,
+				titleSize + 4);
 		// parent.text(value, parent.mouseX - position.x + 15, parent.mouseY -
 		// 15);
 	}

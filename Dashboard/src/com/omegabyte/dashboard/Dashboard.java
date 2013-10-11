@@ -39,6 +39,12 @@ public class Dashboard {
 		setName(string);
 	}
 
+	public Dashboard(PApplet parent, String string) {
+		this(parent);
+		setName(string);
+
+	}
+
 	public Dashboard add(final Widget widget) {
 		widgets.add(widget);
 		widget.setOwner(this);
@@ -52,13 +58,20 @@ public class Dashboard {
 	}
 
 	public void draw() {
-		if (hidden)
+		// if (getName() == "menu")
+		// System.out.println("drawing: " + getName() + " " + !hidden + " "
+		// + showing);
+		if (hidden && !showing)
 			return;
 		if (background != empty)
 			background.draw();
-		for (final Widget widget : widgets)
+		for (final Widget widget : widgets) {
+			// if (getName() == "menu")
+			// if (widget.getName() != null)
+			// System.out.println("drawing: " + widget.getName());
 			if (widget != background)
 				widget.draw();
+		}
 	}
 
 	void drop() {
@@ -239,6 +252,7 @@ public class Dashboard {
 	}
 
 	public Dashboard setShowing(final boolean showing) {
+		// System.out.println("showing_" + getName() + ": " + showing);
 		this.showing = showing;
 		return this;
 	}
@@ -332,10 +346,14 @@ public class Dashboard {
 		for (final Widget widget : widgets) {
 			if (widget.isHover(location)) {
 				// if (widget.isBackground()){
-				// System.out.println("update: " + widget.getTitle()
-				// + "hover: " + widget.isHover() + " hidden: "
-				// + hidden);}
+				// System.out.println("IN_update_" + getName() + ": "
+				// + widget.hover + ", hidden: "
+				// + !widget.getOwner().isHidden() + ", " + !hidden + ", "
+				// + (!getOwner().isHidden() && !hidden));
 				hovering = widget;
+
+				if (widget.isShowing())
+					widget.setShowing(false);
 			}
 			widget.setHover(null);
 			if (grab) {
@@ -347,6 +365,8 @@ public class Dashboard {
 					rotater = hovering;
 			}
 		}
+		if (isShowing())
+			setShowing(false);
 		if (!hovering.isEmpty())
 			hovering.setHover(location);
 		return (new Handler(mover, scaler, rotater));
