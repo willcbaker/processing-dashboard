@@ -83,7 +83,6 @@ public class Graph extends Widget {
 
 	@Override
 	public void draw() {
-		parent.pushStyle();
 		parent.pushMatrix();
 		if (autoScale)
 			update();
@@ -119,7 +118,6 @@ public class Graph extends Widget {
 			plotPoint();
 			break;
 		}
-		parent.popStyle();
 		parent.popMatrix();
 	}
 

@@ -60,16 +60,16 @@ public class Widget {
 
 	float maxRotation = 0;
 
-	public void setMaxRotation(final float maxRotation) {
-		this.maxRotation = maxRotation;
-	}
-
 	private boolean autoHide = true;
 
 	protected String name;
+
 	private boolean showing;
 	protected float snapSpeed = 10;
 	private PVector snapPosition = new PVector(0, 0, 0);
+	private final PVector textAlign = new PVector(PApplet.CENTER,
+			PApplet.CENTER);
+	private PVector textOffset = null;
 
 	public Widget() {
 	}
@@ -214,13 +214,16 @@ public class Widget {
 	}
 
 	private void drawText() {
+		if (textOffset == null)
+			textOffset = new PVector(size.x / 2, size.y / 2);
 		parent.fill(textColor,
 				PApplet.constrain((float) (alpha * 1.1), 0f, 255f));
-		parent.textAlign(PApplet.CENTER);
-		parent.textSize(getTextSize());
-		parent.text(text, size.x / 2, size.y / 2 + textSize / 2);
+		parent.textAlign(PApplet.CENTER, PApplet.TOP);
 		parent.textSize(getTitleSize());
-		parent.text(title, size.x / 2, (float) (getTextSize() * 0.1));
+		parent.text(title, size.x / 2, (float) (getTitleSize() * 0.1));
+		parent.textAlign((int) textAlign.x, (int) textAlign.y);
+		parent.textSize(getTextSize());
+		parent.text(text, textOffset.x, textOffset.y);
 	}
 
 	public void drop() {
@@ -333,12 +336,12 @@ public class Widget {
 	}
 
 	public boolean isHover() {
-		// if (isBackground())
-		// System.out.println("isHover(): " + getTitle() + "hover: " + hover
-		// + " hidden: " + hidden);
 		boolean isHover = false;
-		if (hover != null)
+		if (hover != null) {
 			isHover = true;
+			// System.out.println("IN_hover: " + hover + ", hidden: " + hidden
+			// + ", " + (isHover && !hidden));
+		}
 		return isHover && !hidden;
 	}
 
@@ -395,7 +398,7 @@ public class Widget {
 			break;
 		}
 		// if (isBackground())
-		// System.out.println("isHover: " + getTitle() + "hover: " + hover
+		// System.out.println("isHover: " + getName() + " hover: " + hover
 		// + " hidden: " + hidden);
 		return isHover();
 	}
@@ -523,6 +526,11 @@ public class Widget {
 		return this;
 	}
 
+	public Widget setCenter(final float x, final float y) {
+		setPosition(x - size.mag() / 2, y - size.mag() / 2);
+		return this;
+	}
+
 	public Widget setColor(final int colour) {
 		this.color = colour;
 		return this;
@@ -566,6 +574,10 @@ public class Widget {
 			this.texture = image;
 		}
 		return this;
+	}
+
+	public void setMaxRotation(final float maxRotation) {
+		this.maxRotation = maxRotation;
 	}
 
 	public Widget setMaxSize(final float maxSize) {
@@ -657,11 +669,6 @@ public class Widget {
 		}
 	}
 
-	public Widget setCenter(final float x, final float y) {
-		setPosition(x - size.mag() / 2, y - size.mag() / 2);
-		return this;
-	}
-
 	public Widget setSize(final float rad) {
 		size.set(rad, 0);
 		return this;
@@ -694,8 +701,22 @@ public class Widget {
 		return this;
 	}
 
+	public Widget setTextAlign(final int textAlignX, final int textAlignY) {
+		this.textAlign.set(textAlignX, textAlignY);
+		return this;
+	}
+
 	public Widget setTextColor(final int colour) {
 		this.textColor = colour;
+		return this;
+	}
+
+	public Widget setTextOffset(final float x, final float y) {
+		if (textOffset == null) {
+			textOffset = new PVector(x, y);
+			return this;
+		}
+		this.textOffset.set(x, y);
 		return this;
 	}
 

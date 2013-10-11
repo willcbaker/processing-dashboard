@@ -47,15 +47,20 @@ public class Button extends Widget {
 		return this;
 	}
 
-	public boolean isOn() {
+	public boolean isActive() {
 		return active;
 	}
 
+	public Button setActive(final boolean active) {
+		this.active = active;
+		return this;
+	}
+
 	@Override
-	public boolean isHover(final float x, final float y) {
+	public boolean isHover(final PVector location) {
 		boolean hover = false;
 		parent.stroke(0);
-		if (super.isHover(x, y)) {
+		if (super.isHover(location)) {
 			hover = true;
 			if (selected) {
 				active = !active;
