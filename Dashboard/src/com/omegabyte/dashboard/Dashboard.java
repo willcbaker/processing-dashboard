@@ -33,6 +33,11 @@ public class Dashboard {
 		owner = empty;
 	}
 
+	public Dashboard(PApplet parent, String string) {
+		this(parent);
+		setName(string);
+	}
+
 	public Dashboard add(final Widget widget) {
 		widgets.add(widget);
 		widget.setOwner(this);
