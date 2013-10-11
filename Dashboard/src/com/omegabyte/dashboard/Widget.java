@@ -99,8 +99,6 @@ public class Widget {
 	protected void displayMenu(final Dashboard menu) {
 		if (menu.widgets.isEmpty())
 			return;
-		// menu.handle(parent.mouseX - position.x, parent.mouseY - position.y,
-		// parent.mousePressed);
 		if ((!menu.isHidden() && (menu.getBackground().isHover())
 				|| this.isHover() || menu.isShowing())) {// ||
 															// menu.getOwner().isHover()
@@ -310,9 +308,8 @@ public class Widget {
 		if (parent != null) {
 			try {
 				parent.getClass()
-						.getMethod("call_" + this.getTitle(), Widget.class,
-								Dashboard.class)
-						.invoke(parent, this, this.owner);
+						.getMethod("call_" + this.getName(), Widget.class)
+						.invoke(parent, this);
 			} catch (final Exception e) {
 				PApplet.println(e.getMessage() + " CALLBACK ERROR");
 			}
@@ -339,10 +336,14 @@ public class Widget {
 		boolean isHover = false;
 		if (hover != null) {
 			isHover = true;
-			// System.out.println("IN_hover: " + hover + ", hidden: " + hidden
-			// + ", " + (isHover && !hidden));
+			// System.out.println("IN_hover_" + getName() + ": " + hover +
+			// ", hidden: " + (!getOwner().isHidden() || getOwner().isShowing())
+			// + ", " + !hidden + ", " + isHover + ", " +
+			// ((!getOwner().isHidden() || getOwner().isShowing())
+			// && !hidden && isHover));
 		}
-		return isHover && !hidden;
+		return (!getOwner().isHidden() || getOwner().isShowing()) && !hidden
+				&& isHover;
 	}
 
 	public boolean isHover(final float x, final float y) {
@@ -652,6 +653,10 @@ public class Widget {
 		if (shape == Shape.sphere)
 			setAlpha(255);
 		return this;
+	}
+
+	public boolean isShowing() {
+		return showing;
 	}
 
 	public Widget setShowing(final boolean value) {
