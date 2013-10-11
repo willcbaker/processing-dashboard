@@ -31,6 +31,7 @@ public class Dashboard {
 		moving = empty;// prevents moving objects until selected
 		background = empty;
 		owner = empty;
+		System.out.println("Did i break something?");
 	}
 
 	public Dashboard(PApplet parent, String string) {
