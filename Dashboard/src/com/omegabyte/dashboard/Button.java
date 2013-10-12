@@ -57,11 +57,29 @@ public class Button extends Widget {
 	}
 
 	@Override
+	public void setHover(PVector location) {
+		super.setHover(location);
+		if (location != null) {
+			// we are hovering on TOP
+			if ((!stillHover || (colorOn == colorOff)) && highlight)
+				setColor(colorHighlight);// set highlight color
+		} else
+			updateColor();
+	}
+
+	private void updateColor() {
+		if (active)
+			setColor(colorOn);
+		else
+			setColor(colorOff);
+	}
+
+	@Override
 	public boolean isHover(final PVector location) {
-		if (isHidden() && !isShowing())
-			return false;
+		// System.out.println(getName() + ".isHover(***)");
+		// if (isHidden() && !isShowing())
+		// return false;
 		boolean hover = false;
-		parent.stroke(0);
 		if (super.isHover(location)) {
 			hover = true;
 			if (selected) {
@@ -69,22 +87,15 @@ public class Button extends Widget {
 				stillHover = true;
 				selected = false;
 				invokeCallback();
+				updateColor();
 			}
 
 		} else {
 			stillHover = false;
+			updateColor();
 		}
-		if (active)
-			color = colorOn;
-		else
-			color = colorOff;
-		boolean topHover = true;
-		if (getOwner() != null)
-			if (getOwner().getHovering() != this)
-				topHover = false;
-		if (hover && topHover && (!stillHover || (colorOn == colorOff))
-				&& highlight)
-			color = colorHighlight;
+		// if (hover && (!stillHover || (colorOn == colorOff)) && highlight)
+		// color = colorHighlight;
 		return hover;
 	}
 

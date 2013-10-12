@@ -13,11 +13,22 @@ public class Widget {
 		circle, rectangle, custom, image, sphere
 	}
 
-	protected PApplet parent;
+	protected String name;
 	protected Dashboard owner;
-
+	protected boolean hidden = false;
+	private boolean showing;
 	protected final ArrayList<Dashboard> menus = new ArrayList<Dashboard>();
-
+	protected boolean selected = false;
+	protected boolean empty = false;
+	protected boolean fixed = false;
+	protected PVector hover = null;
+	protected boolean background = false;
+	protected boolean movable = true;
+	protected boolean rotatable = false;
+	protected boolean scalable = false;
+	protected boolean selectable = true;
+	protected String text = "";
+	protected String title = "";
 	private Shape shape = Shape.rectangle;
 
 	protected PVector size = new PVector(0, 0);
@@ -26,45 +37,24 @@ public class Widget {
 
 	protected float minSize = 80;
 	protected float maxSize = 200;
-	protected boolean selected = false;
-	protected boolean movable = true;
 	protected boolean snap = false;
-
-	protected boolean rotatable = false;
-
-	protected boolean scalable = false;
-
-	protected boolean selectable = true;
-
-	protected boolean hidden = false;
-
-	protected boolean background = false;
-	protected PVector hover = null;
-	protected boolean empty = false;
-	protected boolean fixed = false;
 	protected float alpha = 126;
 	protected int color = 0xFFB0B0FB;
 	protected int textColor = 0;
 
 	protected float textSize = -1;
 	protected float titleSize = -1;
-	protected String text = "";
-
-	protected String title = "";
+	String textureFile;
 	protected PImage texture;
 
 	private PShape pShape;
 	float cornerRad = 10;
-	String textureFile;
-	float orientation = 0;
-
 	float maxRotation = 0;
+	float orientation = 0;
 
 	private boolean autoHide = true;
 
-	protected String name;
-
-	private boolean showing;
+	protected PApplet parent;
 	protected float snapSpeed = 10;
 	private PVector snapPosition = new PVector(0, 0, 0);
 	private final PVector textAlign = new PVector(PApplet.CENTER,
@@ -333,17 +323,37 @@ public class Widget {
 	}
 
 	public boolean isHover() {
-		boolean isHover = false;
 		if (hover != null) {
-			isHover = true;
-			// System.out.println("IN_hover_" + getName() + ": " + hover +
-			// ", hidden: " + (!getOwner().isHidden() || getOwner().isShowing())
-			// + ", " + !hidden + ", " + isHover + ", " +
-			// ((!getOwner().isHidden() || getOwner().isShowing())
-			// && !hidden && isHover));
+			// System.out.println("IN_hover_"
+			// + getName()
+			// + ": "
+			// + hover
+			// + ", hidden: "
+			// + (!getOwner().isHidden() || getOwner().isShowing())
+			// + ", "
+			// + !hidden
+			// + ", "
+			// + true
+			// + ", "
+			// + ((!getOwner().isHidden() || getOwner().isShowing())
+			// && !hidden && true));
+			return (!getOwner().isHidden() || getOwner().isShowing())
+					&& !hidden;
 		}
-		return (!getOwner().isHidden() || getOwner().isShowing()) && !hidden
-				&& isHover;
+		// System.out.println("IN_hover_"
+		// + getName()
+		// + ": "
+		// + hover
+		// + ", hidden: "
+		// + (!getOwner().isHidden() || getOwner().isShowing())
+		// + ", "
+		// + !hidden
+		// + ", "
+		// + false
+		// + ", "
+		// + ((!getOwner().isHidden() || getOwner().isShowing())
+		// && !hidden && false));
+		return false;
 	}
 
 	public boolean isHover(final float x, final float y) {
@@ -351,7 +361,8 @@ public class Widget {
 	}
 
 	public boolean isHover(final PVector location) {
-		hover = null;
+		// System.out.println(getName() + ".isHover(...)");
+		setHover(null);
 		switch (shape) {
 		case rectangle:
 			if (location.x > this.position.x
@@ -564,6 +575,7 @@ public class Widget {
 	}
 
 	void setHover(final PVector location) {
+		// System.out.println("set_hover_" + getName() + " " + location);
 		hover = location;
 	}
 
@@ -790,7 +802,7 @@ public class Widget {
 
 	@Override
 	public String toString() {
-		return getClass().getCanonicalName() + ": " + title + ": [shape="
+		return getClass().getCanonicalName() + ": " + name + ": [shape="
 				+ shape + ", size=" + size + ", position=" + position + ","
 				+ (movable ? "moveable," : "") + ""
 				+ (rotatable ? "rotatable," : "") + ""

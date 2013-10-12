@@ -6,21 +6,18 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 public class Dashboard {
-	PApplet parent = null;
+	private String name;
+	private Widget owner = null;
+	private boolean hidden = false;
+	private boolean showing;
 	ArrayList<Widget> widgets = new ArrayList<Widget>();
 	Widget moving = null;
 
-	private Widget hovering;
-
-	Widget empty = null;
-	Widget background = null;
-	private Widget owner = null;
 	private boolean movable = false;
+	Widget background = null;
+	Widget empty = null;
 	PVector grabbed = new PVector(0, 0);
-	private boolean hidden = false;
-	private String name;
-
-	private boolean showing;
+	PApplet parent = null;
 
 	public Dashboard(final PApplet app) {
 		parent = app;
@@ -303,6 +300,9 @@ public class Dashboard {
 		if (handler.hasBackground() || handler.isEmpty())
 			handler.handle(this.updateDash(location, grab, scaling, scale,
 					rotating, rotation));
+		else
+			// still needs update
+			this.updateDash(location, grab, scaling, scale, rotating, rotation);
 		pickup(handler.moving, location);
 		// System.out.println(handler);
 		if (moving != null) {
@@ -319,18 +319,15 @@ public class Dashboard {
 				moving.getOwner().move(PVector.add(location, grabbed));
 			}
 		}
-		if (handler.scale != empty)
+		if (!handler.scale.isEmpty())
 			handler.scale.resize(scale);
-		if (handler.rotate != empty)
+		if (!handler.rotate.isEmpty())
 			handler.rotate.rotate(rotation);
-		setHovering(handler.hover);
+		if (!handler.hover.isEmpty())
+			handler.hover.setHover(location);
 		if (!grab)
 			drop();
 		return handler;
-	}
-
-	private void setHovering(Widget hover) {
-		hovering = hover;
 	}
 
 	public Handler updateDash(final PVector location, final boolean grab,
@@ -368,14 +365,9 @@ public class Dashboard {
 		}
 		if (isShowing())
 			setShowing(false);
-		if (!hovering.isEmpty())
-			hovering.setHover(location);
-		return (new Handler(mover, scaler, rotater));
+		return (new Handler(mover, scaler, rotater, hovering));
 	}
 
-	public Widget getHovering() {
-		return hovering;
-	}
 }
 
 class Handler {
@@ -393,11 +385,12 @@ class Handler {
 		hover = empty;
 	}
 
-	Handler(final Widget moving, final Widget scale, final Widget rotate) {
+	Handler(final Widget moving, final Widget scale, final Widget rotate,
+			Widget hover) {
 		this.moving = moving;
 		this.scale = scale;
 		this.rotate = rotate;
-		this.hover = rotate;
+		this.hover = hover;
 	}
 
 	public boolean handle(final Handler incoming) {
@@ -414,7 +407,7 @@ class Handler {
 			scale = incoming.scale;
 		if (!incoming.rotate.isEmpty())
 			rotate = incoming.rotate;
-		if (incoming.hover.isEmpty())
+		if (!incoming.hover.isEmpty())
 			hover = incoming.hover;
 
 		// System.out.println("\n ***Output: \n" + this);
@@ -427,7 +420,8 @@ class Handler {
 	}
 
 	public boolean isEmpty() {
-		return moving.isEmpty() && scale.isEmpty() && rotate.isEmpty();
+		return moving.isEmpty() && scale.isEmpty() && rotate.isEmpty()
+				&& hover.isEmpty();
 	}
 
 	@Override
