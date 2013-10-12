@@ -1,6 +1,7 @@
 package com.omegabyte.dashboard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -105,6 +106,7 @@ public class Widget {
 	}
 
 	private void displayMenus() {
+		// TODO: fix this, it doesnt work correctly!
 		for (final Dashboard menu : menus)
 			displayMenu(menu);
 	}
@@ -215,6 +217,7 @@ public class Widget {
 	}
 
 	public void drop() {
+		invokeCallback("drop");
 		selected = false;
 		if (this.isSnap()) {
 			snap();
@@ -302,6 +305,20 @@ public class Widget {
 						.invoke(parent, this);
 			} catch (final Exception e) {
 				PApplet.println(e.getMessage() + " CALLBACK ERROR");
+			}
+		}
+	}
+
+	protected void invokeCallback(String type) {
+
+		if (parent != null) {
+			try {
+				parent.getClass()
+						.getMethod(type + "_" + this.getName(), Widget.class)
+						.invoke(parent, this);
+			} catch (final Exception e) {
+				// This is an optional callback, ignore the error
+				// PApplet.println(e.getMessage() + " CALLBACK ERROR");
 			}
 		}
 	}
@@ -485,6 +502,7 @@ public class Widget {
 	}
 
 	public void pickup() {
+		invokeCallback("pickup");
 		selected = true;
 	}
 
@@ -811,5 +829,11 @@ public class Widget {
 				+ (selectable ? "selectable," : "") + ""
 				+ (hidden ? "hidden," : "") + "visible,"
 				+ (fixed ? "fixed," : "") + " text=" + text + "]";
+	}
+
+	HashMap<String, Thread> animations = new HashMap<String, Thread>();
+
+	public void trigger(Thread animation) {
+		animations.get(animation).start();
 	}
 }

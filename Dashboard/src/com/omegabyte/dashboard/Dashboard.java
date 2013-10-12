@@ -26,7 +26,6 @@ public class Dashboard {
 		moving = empty;// prevents moving objects until selected
 		background = empty;
 		owner = empty;
-		System.out.println("Did i break something?");
 	}
 
 	public Dashboard(PApplet parent, String string) {
@@ -46,7 +45,7 @@ public class Dashboard {
 		return this;
 	}
 
-	public void draw() {
+	protected void draw() {
 		// if (getName() == "menu")
 		// System.out.println("drawing: " + getName() + " " + !hidden + " "
 		// + showing);
@@ -291,6 +290,7 @@ public class Dashboard {
 	public Handler update(final PVector location, final boolean grab,
 			final boolean scaling, final float scale, final boolean rotating,
 			final float rotation) {
+		this.draw();
 		final Handler handler = new Handler(empty);
 		for (final Widget widget : this.widgets)
 			for (final Dashboard menu : widget.getMenus()) {
