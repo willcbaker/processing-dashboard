@@ -75,6 +75,11 @@ public class Button extends Widget {
 	}
 
 	@Override
+	public void pickup() {
+		selected = true;
+	}
+
+	@Override
 	public boolean isHover(final PVector location) {
 		// System.out.println(getName() + ".isHover(***)");
 		// if (isHidden() && !isShowing())

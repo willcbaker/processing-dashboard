@@ -8,6 +8,8 @@ import processing.core.PImage;
 import processing.core.PShape;
 import processing.core.PVector;
 
+import com.omegabyte.animations.Animation;
+
 public class Widget {
 
 	public enum Shape {
@@ -217,7 +219,8 @@ public class Widget {
 	}
 
 	public void drop() {
-		invokeCallback("drop");
+		if (!isEmpty())
+			invokeCallback("drop");
 		selected = false;
 		if (this.isSnap()) {
 			snap();
@@ -304,19 +307,30 @@ public class Widget {
 						.getMethod("call_" + this.getName(), Widget.class)
 						.invoke(parent, this);
 			} catch (final Exception e) {
+				// e.printStackTrace();
 				PApplet.println(e.getMessage() + " CALLBACK ERROR");
 			}
 		}
 	}
 
+	/**
+	 * calls two callbacks, one generic with just type as name, other as
+	 * type_name
+	 * 
+	 * @param type
+	 */
 	protected void invokeCallback(String type) {
 
 		if (parent != null) {
 			try {
+				parent.getClass().getMethod(type, Widget.class)
+						.invoke(parent, this);
 				parent.getClass()
-						.getMethod(type + "_" + this.getName(), Widget.class)
+						.getMethod(type + "_" + getName(), Widget.class)
 						.invoke(parent, this);
 			} catch (final Exception e) {
+				// e.printStackTrace();
+				// PApplet.println(e.getMessage() + " CALLBACK ERROR");
 				// This is an optional callback, ignore the error
 				// PApplet.println(e.getMessage() + " CALLBACK ERROR");
 			}
@@ -341,35 +355,9 @@ public class Widget {
 
 	public boolean isHover() {
 		if (hover != null) {
-			// System.out.println("IN_hover_"
-			// + getName()
-			// + ": "
-			// + hover
-			// + ", hidden: "
-			// + (!getOwner().isHidden() || getOwner().isShowing())
-			// + ", "
-			// + !hidden
-			// + ", "
-			// + true
-			// + ", "
-			// + ((!getOwner().isHidden() || getOwner().isShowing())
-			// && !hidden && true));
 			return (!getOwner().isHidden() || getOwner().isShowing())
 					&& !hidden;
 		}
-		// System.out.println("IN_hover_"
-		// + getName()
-		// + ": "
-		// + hover
-		// + ", hidden: "
-		// + (!getOwner().isHidden() || getOwner().isShowing())
-		// + ", "
-		// + !hidden
-		// + ", "
-		// + false
-		// + ", "
-		// + ((!getOwner().isHidden() || getOwner().isShowing())
-		// && !hidden && false));
 		return false;
 	}
 
@@ -502,7 +490,8 @@ public class Widget {
 	}
 
 	public void pickup() {
-		invokeCallback("pickup");
+		if (!isEmpty())
+			invokeCallback("pickup");
 		selected = true;
 	}
 
@@ -833,7 +822,7 @@ public class Widget {
 
 	HashMap<String, Thread> animations = new HashMap<String, Thread>();
 
-	public void trigger(Thread animation) {
-		animations.get(animation).start();
+	public void trigger(Animation animation) {
+		animation.trigger();
 	}
 }

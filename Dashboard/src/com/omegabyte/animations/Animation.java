@@ -10,8 +10,8 @@ import com.omegabyte.dashboard.Widget;
 
 public class Animation extends Thread {
 	boolean running; // Is the thread running? Yes or no?
-	int _wait; // How many milliseconds should we wait in between executions?
-	String id; // Thread name
+	int _wait = 18; // How many milliseconds should we wait in between
+					// executions?
 	boolean recursive = false;
 
 	int count; // counter
@@ -39,14 +39,26 @@ public class Animation extends Thread {
 	private long timeOut;
 
 	public Animation() {
+		super();
+	}
 
+	/**
+	 * A method to create a delay. this is used for animation sequences
+	 * 
+	 * @param duration
+	 *            the length of time in milliseconds
+	 */
+	public Animation(long duration) {
+		super();
+		this._duration = duration;
+		setName("Delay_" + duration);
 	}
 
 	public Animation(final Dashboard dash, final long duration) {
 		_wait = 20;
 		try {
 			widget = dash.getOwner();
-			id = widget.getTitle();
+			setName(widget.getName());
 			this.dash = dash;
 			alphaCopy = widget.getAlpha();
 			positionCopy = widget.getPosition();
@@ -62,16 +74,18 @@ public class Animation extends Thread {
 	ArrayList<Widget> widgets = new ArrayList<Widget>();
 
 	public Animation(final Widget widget) {
+		super();
 		widgets.add(widget);
 	}
 
 	public Animation(final Dashboard dashboard) {
+		super();
 		widgets.addAll(dashboard.getWidgets());
 	}
 
 	public Animation(final Widget widg, final long duration) {
 		_wait = 20;
-		id = widg.getName();
+		setName(widg.getName());
 		widget = widg;
 		alphaCopy = widg.getAlpha();
 		positionCopy = widg.getPosition();
@@ -131,10 +145,6 @@ public class Animation extends Thread {
 		return dash;
 	}
 
-	public String getID() {
-		return id;
-	}
-
 	public Widget getWidget() {
 		return widget;
 	}
@@ -175,32 +185,38 @@ public class Animation extends Thread {
 	// We must implement run, this gets triggered by start()
 	@Override
 	public void run() {
-		while (true) {
-			// System.out.print(getWidget().getTitle() + " ");
-			// System.out.println("Time is " + timeBegin + " go until:  "
-			// + timeEnd + "." + running);
-			while (running && widget.getParent().millis() < timeEnd) {// (running
-																		// &&
-																		// count
-																		// < 10)
-				try {
-					// System.out.println("running"); // {
-					fadeIn(_fadeIn);
-					// wait2(_duration - _fadeIn - _fadeOut);
-					fadeOut(_fadeOut);
-					shake(shaker);
-					move(speed);
-				} catch (final Exception e) {
-					e.printStackTrace();
+		if (widgets.isEmpty()) {
+			wait2(_duration);
+		} else {// do the old method stuff
+			while (isRecursive()) {
+				System.out.print("RUNNING?");
+				// System.out.print(getWidget().getName() + " ");
+				// System.out.println("Time is " + timeBegin + " go until:  "
+				// + timeEnd + "." + running);
+				while (running && widget.getParent().millis() < timeEnd) {// (running
+																			// &&
+																			// count
+																			// <
+																			// 10)
+					try {
+						// System.out.println("running"); // {
+						fadeIn(_fadeIn);
+						// wait2(_duration - _fadeIn - _fadeOut);
+						fadeOut(_fadeOut);
+						shake(shaker);
+						move(speed);
+					} catch (final Exception e) {
+						e.printStackTrace();
+					}
 				}
+				running = false;
+				try {
+					sleep((_wait));
+				} catch (final Exception e) {
+				}
+				// System.out.println(id + " thread is done!"); // The thread is
+				// done when we get to the end of run()
 			}
-			running = false;
-			try {
-				sleep((_wait));
-			} catch (final Exception e) {
-			}
-			// System.out.println(id + " thread is done!"); // The thread is
-			// done when we get to the end of run()
 		}
 	}
 
@@ -229,10 +245,6 @@ public class Animation extends Thread {
 			_duration = total;
 	}
 
-	public void setID(final String id) {
-		this.id = id;
-	}
-
 	public void setRadiate(final long sendDuration) {
 		// TODO Auto-generated method stub
 
@@ -257,7 +269,7 @@ public class Animation extends Thread {
 
 	public void setWidget(final Widget widget) {
 		this.widget = widget;
-		id = widget.getName();
+		setName(widget.getName());
 		alphaCopy = widget.getAlpha();
 		positionCopy = widget.getPosition().get();
 		System.out.println("copy " + positionCopy);
@@ -294,40 +306,30 @@ public class Animation extends Thread {
 		}
 	}
 
-	// Overriding "start()"
-	@Override
-	public void start() {
-		// Set running equal to true
-		// running = true;
-		timeBegin = widget.getParent().millis();
-		timeEnd = timeBegin + _duration;
-		// Print messages
-		// System.out.println("Starting thread (will execute every " + _wait
-		// + " milliseconds for " + _duration + " seconds.)");
-		// println("Time is " + timeBegin + " go until:  "+timeEnd+".");
-		// Do whatever start does in Thread, don't forget this!
-		super.start();
-	}
-
 	public void trigger() {
 		if (!this.running) {
-			timeBegin = widget.getParent().millis();
-			timeEnd = timeBegin + _duration;
-			timeOut = (timeEnd - _fadeOut);
+			// timeBegin = widget.getParent().millis();
+			// timeEnd = timeBegin + _duration;
+			// timeOut = (timeEnd - _fadeOut);
 			this.running = true;
 		} else {
-			timeEnd = widget.getParent().millis() + _duration;
-			timeOut = (timeEnd - _fadeOut);
+			// timeEnd = widget.getParent().millis() + _duration;
+			// timeOut = (timeEnd - _fadeOut);
 		}
-		System.out.println(id + " Triggered");
+		System.out.println(getName() + " Triggered");
 	}
 
 	void wait2(final float duration) {
+		// System.out.println("Waiting... " + _duration);
 		if (duration < 1)
 			return;
 		try {
 			sleep((long) (duration));
 		} catch (final Exception e) {
 		}
+	}
+
+	public long getWait() {
+		return _wait;
 	}
 }
