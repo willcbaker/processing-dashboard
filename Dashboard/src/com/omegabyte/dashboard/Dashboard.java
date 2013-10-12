@@ -10,9 +10,7 @@ public class Dashboard {
 	ArrayList<Widget> widgets = new ArrayList<Widget>();
 	Widget moving = null;
 
-	public Widget getMoving() {
-		return moving;
-	}
+	private Widget hovering;
 
 	Widget empty = null;
 	Widget background = null;
@@ -37,12 +35,6 @@ public class Dashboard {
 	public Dashboard(PApplet parent, String string) {
 		this(parent);
 		setName(string);
-	}
-
-	public Dashboard(PApplet parent, String string) {
-		this(parent);
-		setName(string);
-
 	}
 
 	public Dashboard add(final Widget widget) {
@@ -87,6 +79,10 @@ public class Dashboard {
 		if (background == null)
 			return new Widget(parent).setEmpty(true);
 		return background;
+	}
+
+	public Widget getMoving() {
+		return moving;
 	}
 
 	public String getName() {
@@ -327,9 +323,14 @@ public class Dashboard {
 			handler.scale.resize(scale);
 		if (handler.rotate != empty)
 			handler.rotate.rotate(rotation);
+		setHovering(handler.hover);
 		if (!grab)
 			drop();
 		return handler;
+	}
+
+	private void setHovering(Widget hover) {
+		hovering = hover;
 	}
 
 	public Handler updateDash(final PVector location, final boolean grab,
@@ -370,6 +371,10 @@ public class Dashboard {
 		if (!hovering.isEmpty())
 			hovering.setHover(location);
 		return (new Handler(mover, scaler, rotater));
+	}
+
+	public Widget getHovering() {
+		return hovering;
 	}
 }
 

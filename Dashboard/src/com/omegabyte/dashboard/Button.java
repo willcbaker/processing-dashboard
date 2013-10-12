@@ -78,7 +78,12 @@ public class Button extends Widget {
 			color = colorOn;
 		else
 			color = colorOff;
-		if (hover && (!stillHover || (colorOn == colorOff)) && highlight)
+		boolean topHover = true;
+		if (getOwner() != null)
+			if (getOwner().getHovering() != this)
+				topHover = false;
+		if (hover && topHover && (!stillHover || (colorOn == colorOff))
+				&& highlight)
 			color = colorHighlight;
 		return hover;
 	}
