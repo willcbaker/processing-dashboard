@@ -63,6 +63,7 @@ public class Widget {
 	private final PVector textAlign = new PVector(PApplet.CENTER,
 			PApplet.CENTER);
 	private PVector textOffset = null;
+	private boolean hasHover;
 
 	public Widget() {
 	}
@@ -90,20 +91,11 @@ public class Widget {
 	}
 
 	protected void displayMenu(final Dashboard menu) {
-		if (menu.widgets.isEmpty())
+		if (menu.widgets.isEmpty() && menu.isHidden()) {
 			return;
-		if ((!menu.isHidden() && (menu.getBackground().isHover())
-				|| this.isHover() || menu.isShowing())) {// ||
-															// menu.getOwner().isHover()
-			if (isBackground())
-				// System.out.println("displayMenu: " + getTitle() + "hover: "
-				// + hover + " hidden: " + hidden);
-
-				menu.setHidden(false);
+		}
+		if (menu.hasHover() || menu.getOwner().hasHover() || menu.isShowing()) {
 			menu.draw();
-		} else {
-			// System.out.println("**AUTOHIDE**");
-			menu.setHidden(autoHide);
 		}
 	}
 
@@ -114,8 +106,11 @@ public class Widget {
 	}
 
 	public void draw() {
-		if (hidden && !showing)
+		if (hidden && !showing) {
+			System.out.println(getName() + " is HIDDEN and NOT SHOWING");
 			return;
+		}
+		setShowing(true);
 		parent.pushMatrix();
 		parent.translate(getPosition().x, getPosition().y);
 		parent.rotate(-orientation);
@@ -319,7 +314,7 @@ public class Widget {
 	 * 
 	 * @param type
 	 */
-	protected void invokeCallback(String type) {
+	protected void invokeCallback(final String type) {
 
 		if (parent != null) {
 			try {
@@ -354,11 +349,32 @@ public class Widget {
 	}
 
 	public boolean isHover() {
+		// System.out.println(getName() + ".isHover(" + hover + ")");
+		// System.out.println("     " + "!getOwner(" + getOwner().getName()
+		// + ").isHidden(" + !getOwner().isHidden() + ")");
+		// System.out.println("     " + "getOwner(" + getOwner().getName()
+		// + ").isShowing(" + getOwner().isShowing() + ")");
+		// System.out.println("     " + "getOwner(" + getOwner().getName()
+		// + ").isHover(" + getOwner().isHover() + ")");
+		// System.out.println("     " + "!hidden(" + !hidden + ")");
+		// hasHover() removed from below
 		if (hover != null) {
-			return (!getOwner().isHidden() || getOwner().isShowing())
-					&& !hidden;
+			// return (!getOwner().isHidden() || getOwner().isShowing())
+			// && !hidden;
+			return (!hidden && !getOwner().isHidden() && isShowing());
 		}
 		return false;
+	}
+
+	public void hasHover(final boolean setValue) {
+		hasHover = setValue;
+		if (hasHover && getOwner() != null) {
+			getOwner().hasHover(true);
+		}
+	}
+
+	public boolean hasHover() {
+		return hasHover;
 	}
 
 	public boolean isHover(final float x, final float y) {
@@ -546,7 +562,10 @@ public class Widget {
 	}
 
 	public Widget setCenter(final float x, final float y) {
-		setPosition(x - size.mag() / 2, y - size.mag() / 2);
+		if (getShape() == Shape.circle) {
+			setPosition(x - size.mag() / 2, y - size.mag() / 2);
+		} else
+			setPosition(x - size.x / 2, y - size.y / 2);
 		return this;
 	}
 
@@ -680,9 +699,9 @@ public class Widget {
 
 	public Widget setShowing(final boolean value) {
 		showing = value;
-		for (final Dashboard menu : menus) {
-			menu.setShowing(value);
-		}
+		// for (final Dashboard menu : menus) {
+		// menu.setShowing(value);
+		// }
 		return this;
 	}
 
@@ -822,7 +841,15 @@ public class Widget {
 
 	HashMap<String, Thread> animations = new HashMap<String, Thread>();
 
-	public void trigger(Animation animation) {
+	public void trigger(final Animation animation) {
 		animation.trigger();
+	}
+
+	public PVector getCenter() {
+		if (getShape() == Shape.circle) {
+			return PVector.add(getPosition(), new PVector(getSize().mag(),
+					getSize().mag()));
+		}
+		return PVector.add(getPosition(), PVector.div(getSize(), 2));
 	}
 }

@@ -10,6 +10,7 @@ public class Dashboard {
 	private Widget owner = null;
 	private boolean hidden = false;
 	private boolean showing;
+	private boolean hasHover;
 	ArrayList<Widget> widgets = new ArrayList<Widget>();
 	Widget moving = null;
 
@@ -28,7 +29,7 @@ public class Dashboard {
 		owner = empty;
 	}
 
-	public Dashboard(PApplet parent, String string) {
+	public Dashboard(final PApplet parent, final String string) {
 		this(parent);
 		setName(string);
 	}
@@ -252,7 +253,7 @@ public class Dashboard {
 	public void show() {
 		setShowing(true);
 		for (final Widget widget : widgets) {
-			widget.setShowing(true);
+			widget.setShowing(true, true);
 		}
 	}
 
@@ -300,20 +301,21 @@ public class Dashboard {
 		if (handler.hasBackground() || handler.isEmpty())
 			handler.handle(this.updateDash(location, grab, scaling, scale,
 					rotating, rotation));
-		else
+		else {
 			// still needs update
 			this.updateDash(location, grab, scaling, scale, rotating, rotation);
+		}
 		pickup(handler.moving, location);
 		// System.out.println(handler);
 		if (moving != null) {
 			if (moving != empty && !moving.isBackground()) {
-				if (!moving.isMovable()) {
-					// while (moving.getOwner().getOwner() != null)
-					// moving = moving.getOwner().getOwner();
-				} else {
-					moving.move(PVector.add(location, grabbed));
-					bringToFront(moving);
-				}
+				// if (!moving.isMovable() && moving.getOwner() != null) {
+				// while (moving.getOwner().getOwner() != null)
+				// moving = moving.getOwner().getOwner();
+				// } else {
+				moving.move(PVector.add(location, grabbed));
+				bringToFront(moving);
+				// }
 			}
 			if (moving.isBackground() && moving.getOwner().isMovable()) {
 				moving.getOwner().move(PVector.add(location, grabbed));
@@ -323,36 +325,43 @@ public class Dashboard {
 			handler.scale.resize(scale);
 		if (!handler.rotate.isEmpty())
 			handler.rotate.rotate(rotation);
-		if (!handler.hover.isEmpty())
+		if (!handler.hover.isEmpty()) {
 			handler.hover.setHover(location);
+			handler.hover.hasHover(true);
+		}
 		if (!grab)
 			drop();
 		return handler;
+	}
+
+	public boolean hasHover() {
+		return hasHover;
+	}
+
+	public void hasHover(final boolean setValue) {
+		hasHover = setValue;
+		if (hasHover && !getOwner().isEmpty()) {
+			getOwner().hasHover(true);
+		}
+
 	}
 
 	public Handler updateDash(final PVector location, final boolean grab,
 			final boolean scaling, final float scale, final boolean rotating,
 			final float rotation) {
 
-		// if (grab)
-		// System.out.println("Grabbed");
+		// System.out.println("Update: " + getName());
 		Widget mover = empty;
 		Widget scaler = empty;
 		Widget rotater = empty;
 		Widget hovering = empty;
-
+		hasHover = false;// reset hasHover
 		for (final Widget widget : widgets) {
+			widget.hasHover(false);// reset?
 			if (widget.isHover(location)) {
-				// if (widget.isBackground()){
-				// System.out.println("IN_update_" + getName() + ": "
-				// + widget.hover + ", hidden: "
-				// + !widget.getOwner().isHidden() + ", " + !hidden + ", "
-				// + (!getOwner().isHidden() && !hidden));
 				hovering = widget;
-
-				if (widget.isShowing())
-					widget.setShowing(false);
 			}
+			widget.setShowing(false);
 			widget.setHover(null);
 			if (grab) {
 				mover = hovering;
@@ -386,7 +395,7 @@ class Handler {
 	}
 
 	Handler(final Widget moving, final Widget scale, final Widget rotate,
-			Widget hover) {
+			final Widget hover) {
 		this.moving = moving;
 		this.scale = scale;
 		this.rotate = rotate;
