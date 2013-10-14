@@ -240,7 +240,7 @@ public class Dashboard {
 		return this;
 	}
 
-	void setOwner(final Widget widget) {
+	public void setOwner(final Widget widget) {
 		owner = widget;
 	}
 
@@ -298,7 +298,7 @@ public class Dashboard {
 				handler.handle((menu.updateDash(location, grab, scaling, scale,
 						rotating, rotation)));
 			}
-		if (handler.hasBackground() || handler.isEmpty())
+		if (handler.isEmpty())// handler.hasBackground() ||
 			handler.handle(this.updateDash(location, grab, scaling, scale,
 					rotating, rotation));
 		else {
@@ -350,7 +350,7 @@ public class Dashboard {
 			final boolean scaling, final float scale, final boolean rotating,
 			final float rotation) {
 
-		// System.out.println("Update: " + getName());
+		System.out.println("Update: " + getName());
 		Widget mover = empty;
 		Widget scaler = empty;
 		Widget rotater = empty;
@@ -407,19 +407,17 @@ class Handler {
 			System.out.println("Error, Empty-null");
 			return false;
 		}
-		// System.out.println("\n **Got: \n" + incoming);
-		if (!incoming.moving.isEmpty()
-				|| (this.moving.isEmpty() && incoming.moving.isBackground()))
+		System.out.println("\n **Got: \n" + incoming);
+		if (!incoming.moving.isEmpty())
 			moving = incoming.moving;
-		if (!incoming.scale.isEmpty()
-				|| (this.scale.isEmpty() && incoming.scale.isBackground()))
+		if (!incoming.scale.isEmpty())
 			scale = incoming.scale;
 		if (!incoming.rotate.isEmpty())
 			rotate = incoming.rotate;
 		if (!incoming.hover.isEmpty())
 			hover = incoming.hover;
 
-		// System.out.println("\n ***Output: \n" + this);
+		System.out.println("\n ***Output: \n" + this);
 		return true;
 	}
 
@@ -436,7 +434,8 @@ class Handler {
 	@Override
 	public String toString() {
 		return "Handler [moving=" + moving.getName() + ", scale="
-				+ scale.getName() + ", rotate=" + rotate.getName() + ", empty="
+				+ scale.getName() + ", rotate=" + rotate.getName() + ", hover="
+				+ hover.getName() + ", empty="
 				+ (empty == null ? "NULL" : empty.getName()) + "]";
 	}
 }
