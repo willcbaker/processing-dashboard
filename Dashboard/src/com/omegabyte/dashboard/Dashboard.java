@@ -28,35 +28,6 @@ public class Dashboard {
 
 	// TODO:remove moving, for favor of interacting
 
-	public boolean isFixed() {
-		return fixed;
-	}
-
-	public void setFixed(final boolean fixed) {
-		this.fixed = fixed;
-	}
-
-	public boolean isShowWithOwner() {
-		return showWithOwner;
-	}
-
-	/**
-	 * Enable/Disable the ability to grab through the background.
-	 * 
-	 * If enabled, you can act on widgets below a background.
-	 * 
-	 * @param grabThroughBackground
-	 *            default enabled
-	 */
-	public Dashboard grabThroughBackground(final boolean grabThroughBackground) {
-		this.grabThroughBackground = grabThroughBackground;
-		return this;
-	}
-
-	public boolean isGrabThroughBackground() {
-		return grabThroughBackground;
-	}
-
 	public Dashboard(final PApplet app) {
 		parent = app;
 		empty = new Widget(parent, "EMPTY").setHidden(true).setMovable(false)
@@ -157,6 +128,47 @@ public class Dashboard {
 		return widgets;
 	}
 
+	public void grab(final PVector grabLocation) {
+		// System.out.println("Grabbed: " + grabLocation);
+		grabbed = grabLocation;
+	}
+
+	/**
+	 * Enable/Disable the ability to grab through the background.
+	 * 
+	 * If enabled, you can act on widgets below a background.
+	 * 
+	 * @param grabThroughBackground
+	 *            default enabled
+	 */
+	public Dashboard grabThroughBackground(final boolean grabThroughBackground) {
+		this.grabThroughBackground = grabThroughBackground;
+		return this;
+	}
+
+	// TODO: fix hasHover and implement so we can use phantoms again!
+	public boolean hasHover() {
+		return hasHover;
+	}
+
+	public void hasHover(final boolean setValue) {
+		hasHover = setValue;
+		if (hasHover && !getOwner().isEmpty()) {
+			System.out.println(getOwner().getName() + ".hasHover(" + getName()
+					+ ")");
+			getOwner().hasHover(true);
+		}
+
+	}
+
+	public boolean isFixed() {
+		return fixed;
+	}
+
+	public boolean isGrabThroughBackground() {
+		return grabThroughBackground;
+	}
+
 	public boolean isHidden() {
 		return hidden;
 	}
@@ -167,6 +179,10 @@ public class Dashboard {
 
 	public boolean isShowing() {
 		return showing;
+	}
+
+	public boolean isShowWithOwner() {
+		return showWithOwner;
 	}
 
 	public Dashboard lock() {
@@ -243,6 +259,40 @@ public class Dashboard {
 		}
 	}
 
+	public void print() {
+		StringBuilder string = new StringBuilder();
+		string.append(" +++" + getName() + "\n");// 0th level
+		for (Widget widget : getWidgets()) {
+			string.append("  |---" + widget.getName() + "\n");
+			for (Dashboard menu : widget.getMenus()) {
+				menu.print_rest(2, string);// 1st level
+			}
+		}
+		System.out.println(string);
+	}
+
+	private void print_rest(int level, StringBuilder string) {
+
+		if (getOwner() != null && getOwner().getOwner() != null) {
+			for (int i = 0; i < level; i++) {
+				string.append("  ");
+			}
+		}
+		string.append("|+++" + getName() + "\n");// next level
+		for (Widget widget : getWidgets()) {
+			if (getOwner() != null && getOwner().getOwner() != null) {
+				for (int i = 0; i < level + 1; i++) {
+					string.append("  ");
+				}
+			}
+			string.append("|---" + widget.getName() + "\n");
+			for (Dashboard menu : widget.getMenus()) {
+				menu.print_rest(level + 1, string);// next level
+			}
+		}
+
+	}
+
 	public Dashboard resize(final float scale) {
 		for (final Widget widget : widgets) {
 			widget.getSize().mult(scale);
@@ -287,6 +337,10 @@ public class Dashboard {
 		return this;
 	}
 
+	public void setFixed(final boolean fixed) {
+		this.fixed = fixed;
+	}
+
 	public void setHidden(final boolean b) {
 		hidden = b;
 	}
@@ -325,6 +379,11 @@ public class Dashboard {
 		}
 	}
 
+	public Dashboard showWithOwner(final boolean value) {
+		showWithOwner = value;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		final StringBuilder string = new StringBuilder();
@@ -353,19 +412,35 @@ public class Dashboard {
 		return string.toString();
 	}
 
-	// public boolean hasHover() {
-	// return hasHover;
+	// private void print_rest(int level, StringBuilder string) {
+	// // TODO: create a full branch structure
+	// Iterator<Widget> wdg = widgets.iterator();
+	// while (wdg.hasNext()) {
+	// Widget element = wdg.next();
+	// // Iterator<Dashboard> mnu = element.getMenus().iterator();
+	// System.out.print(element + " ");
 	// }
 	//
-	// public void hasHover(final boolean setValue) {
-	// hasHover = setValue;
-	// if (hasHover && !getOwner().isEmpty()) {
-	// System.out.println(getOwner().getName() + ".hasHover(" + getName()
-	// + ")");
-	// getOwner().hasHover(true);
+	// if (getOwner() != null && getOwner().getOwner() != null) {
+	// for (int i = 0; i < level; i++) {
+	// string.append("  ");
+	// }
+	// }
+	// string.append("|+++" + getName() + "\n");// next level
+	// for (Widget widget : getWidgets()) {
+	// if (getOwner() != null && getOwner().getOwner() != null) {
+	// for (int i = 0; i < level + 1; i++) {
+	// string.append("  ");
+	// }
+	// }
+	// string.append("|---" + widget.getName() + "\n");
+	// for (Dashboard menu : widget.getMenus()) {
+	// menu.print_rest(level + 2, string);// next level
+	// }
 	// }
 	//
 	// }
+
 	/**
 	 * This function will update and draw the dashboard. This is only to be
 	 * called from Super, untested for lower dashboards. This will show the
@@ -379,6 +454,18 @@ public class Dashboard {
 		final boolean scale = false;
 		update(location, grab, rotate, 0, scale, 1.0f);
 	}
+
+	// private void getShowing() {
+	// System.out.println(getName() + " showing: ");
+	// for (Widget widget : getWidgets()) {
+	// if (widget.isShowing()) {
+	// System.out.println("   " + widget.getName());
+	// }
+	// for (Dashboard menu : widget.getMenus()) {
+	// menu.getShowing();
+	// }
+	// }
+	// }
 
 	/**
 	 * This function will update and draw the dashboard. This is only to be
@@ -469,91 +556,6 @@ public class Dashboard {
 				menu.updateChildren(handler, location);
 			}
 		}
-	}
-
-	public void print() {
-		StringBuilder string = new StringBuilder();
-		string.append(" +++" + getName() + "\n");// 0th level
-		for (Widget widget : getWidgets()) {
-			string.append("  |---" + widget.getName() + "\n");
-			for (Dashboard menu : widget.getMenus()) {
-				menu.print_rest(2, string);// 1st level
-			}
-		}
-		System.out.println(string);
-	}
-
-	// private void print_rest(int level, StringBuilder string) {
-	// // TODO: create a full branch structure
-	// Iterator<Widget> wdg = widgets.iterator();
-	// while (wdg.hasNext()) {
-	// Widget element = wdg.next();
-	// // Iterator<Dashboard> mnu = element.getMenus().iterator();
-	// System.out.print(element + " ");
-	// }
-	//
-	// if (getOwner() != null && getOwner().getOwner() != null) {
-	// for (int i = 0; i < level; i++) {
-	// string.append("  ");
-	// }
-	// }
-	// string.append("|+++" + getName() + "\n");// next level
-	// for (Widget widget : getWidgets()) {
-	// if (getOwner() != null && getOwner().getOwner() != null) {
-	// for (int i = 0; i < level + 1; i++) {
-	// string.append("  ");
-	// }
-	// }
-	// string.append("|---" + widget.getName() + "\n");
-	// for (Dashboard menu : widget.getMenus()) {
-	// menu.print_rest(level + 2, string);// next level
-	// }
-	// }
-	//
-	// }
-
-	private void print_rest(int level, StringBuilder string) {
-
-		if (getOwner() != null && getOwner().getOwner() != null) {
-			for (int i = 0; i < level; i++) {
-				string.append("  ");
-			}
-		}
-		string.append("|+++" + getName() + "\n");// next level
-		for (Widget widget : getWidgets()) {
-			if (getOwner() != null && getOwner().getOwner() != null) {
-				for (int i = 0; i < level + 1; i++) {
-					string.append("  ");
-				}
-			}
-			string.append("|---" + widget.getName() + "\n");
-			for (Dashboard menu : widget.getMenus()) {
-				menu.print_rest(level + 1, string);// next level
-			}
-		}
-
-	}
-
-	// private void getShowing() {
-	// System.out.println(getName() + " showing: ");
-	// for (Widget widget : getWidgets()) {
-	// if (widget.isShowing()) {
-	// System.out.println("   " + widget.getName());
-	// }
-	// for (Dashboard menu : widget.getMenus()) {
-	// menu.getShowing();
-	// }
-	// }
-	// }
-
-	public void grab(final PVector grabLocation) {
-		// System.out.println("Grabbed: " + grabLocation);
-		grabbed = grabLocation;
-	}
-
-	public Dashboard showWithOwner(final boolean value) {
-		showWithOwner = value;
-		return this;
 	}
 
 }
