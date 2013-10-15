@@ -54,7 +54,7 @@ public class Widget {
 	float cornerRad = 10;
 	float maxRotation = 0;
 	float orientation = 0;
-
+	// TODO: implement an autohide feature?
 	private boolean autoHide = true;
 
 	protected PApplet parent;
@@ -63,7 +63,6 @@ public class Widget {
 	private final PVector textAlign = new PVector(PApplet.CENTER,
 			PApplet.CENTER);
 	private PVector textOffset = null;
-	private boolean hasHover;
 
 	public Widget() {
 	}

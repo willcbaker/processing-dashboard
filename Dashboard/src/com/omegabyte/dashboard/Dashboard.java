@@ -1,7 +1,6 @@
 package com.omegabyte.dashboard;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -478,20 +477,42 @@ public class Dashboard {
 		for (Widget widget : getWidgets()) {
 			string.append("  |---" + widget.getName() + "\n");
 			for (Dashboard menu : widget.getMenus()) {
-				menu.print_rest2(2, string);// 1st level
+				menu.print_rest(2, string);// 1st level
 			}
 		}
 		System.out.println(string);
 	}
 
+	// private void print_rest(int level, StringBuilder string) {
+	// // TODO: create a full branch structure
+	// Iterator<Widget> wdg = widgets.iterator();
+	// while (wdg.hasNext()) {
+	// Widget element = wdg.next();
+	// // Iterator<Dashboard> mnu = element.getMenus().iterator();
+	// System.out.print(element + " ");
+	// }
+	//
+	// if (getOwner() != null && getOwner().getOwner() != null) {
+	// for (int i = 0; i < level; i++) {
+	// string.append("  ");
+	// }
+	// }
+	// string.append("|+++" + getName() + "\n");// next level
+	// for (Widget widget : getWidgets()) {
+	// if (getOwner() != null && getOwner().getOwner() != null) {
+	// for (int i = 0; i < level + 1; i++) {
+	// string.append("  ");
+	// }
+	// }
+	// string.append("|---" + widget.getName() + "\n");
+	// for (Dashboard menu : widget.getMenus()) {
+	// menu.print_rest(level + 2, string);// next level
+	// }
+	// }
+	//
+	// }
+
 	private void print_rest(int level, StringBuilder string) {
-		// TODO: create a full branch structure
-		Iterator<Widget> wdg = widgets.iterator();
-		while (wdg.hasNext()) {
-			Widget element = wdg.next();
-			// Iterator<Dashboard> mnu = element.getMenus().iterator();
-			System.out.print(element + " ");
-		}
 
 		if (getOwner() != null && getOwner().getOwner() != null) {
 			for (int i = 0; i < level; i++) {
@@ -507,29 +528,7 @@ public class Dashboard {
 			}
 			string.append("|---" + widget.getName() + "\n");
 			for (Dashboard menu : widget.getMenus()) {
-				menu.print_rest(level + 2, string);// next level
-			}
-		}
-
-	}
-
-	private void print_rest2(int level, StringBuilder string) {
-
-		if (getOwner() != null && getOwner().getOwner() != null) {
-			for (int i = 0; i < level; i++) {
-				string.append("  ");
-			}
-		}
-		string.append("|+++" + getName() + "\n");// next level
-		for (Widget widget : getWidgets()) {
-			if (getOwner() != null && getOwner().getOwner() != null) {
-				for (int i = 0; i < level + 1; i++) {
-					string.append("  ");
-				}
-			}
-			string.append("|---" + widget.getName() + "\n");
-			for (Dashboard menu : widget.getMenus()) {
-				menu.print_rest2(level + 1, string);// next level
+				menu.print_rest(level + 1, string);// next level
 			}
 		}
 
