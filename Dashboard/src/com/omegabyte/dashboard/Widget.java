@@ -86,23 +86,34 @@ public class Widget {
 
 	protected void displayAllMenus() {
 		for (final Dashboard menu : menus) {
-			menu.draw();
+			if (!(menu.isFixed() && menu.isHidden()))
+				menu.draw();
 		}
 	}
 
 	protected void displayMenu(final Dashboard menu) {
-		if (menu.widgets.isEmpty() && menu.isHidden()) {
+		if (menu.widgets.isEmpty() || menu.isHidden()) {
 			return;
 		}
-		if (menu.hasHover() || menu.getOwner().hasHover() || menu.isShowing()) {
+		if (menu.isShowing()
+				|| (menu.isShowWithOwner() && menu.getOwner().isShowing())) {
 			menu.draw();
+			if (!menu.getBackground().isHover()) {
+				menu.setShowing(false);
+			}
 		}
 	}
 
 	private void displayMenus() {
 		// TODO: fix this, it doesnt work correctly!
-		for (final Dashboard menu : menus)
+		// problems with subSUB menus
+		for (final Dashboard menu : menus) {
+			// System.out.println("thinking..." + getName() + ".isHover("
+			// + isHover() + ")->" + menu.getName());
+			if (!menu.isHidden() && this.isHover())
+				menu.setShowing(true);
 			displayMenu(menu);
+		}
 	}
 
 	public void draw() {
@@ -110,7 +121,6 @@ public class Widget {
 			System.out.println(getName() + " is HIDDEN and NOT SHOWING");
 			return;
 		}
-		setShowing(true);
 		parent.pushMatrix();
 		parent.translate(getPosition().x, getPosition().y);
 		parent.rotate(-orientation);
@@ -214,8 +224,9 @@ public class Widget {
 	}
 
 	public void drop() {
-		if (!isEmpty())
-			invokeCallback("drop");
+		if (isEmpty())
+			return;
+		invokeCallback("drop");
 		selected = false;
 		if (this.isSnap()) {
 			snap();
@@ -355,9 +366,14 @@ public class Widget {
 		// System.out.println("     " + "getOwner(" + getOwner().getName()
 		// + ").isShowing(" + getOwner().isShowing() + ")");
 		// System.out.println("     " + "getOwner(" + getOwner().getName()
-		// + ").isHover(" + getOwner().isHover() + ")");
+		// + ").hasHover(" + getOwner().hasHover() + ")");
+		// System.out.println("     isShowing(" + isShowing() + ")");
 		// System.out.println("     " + "!hidden(" + !hidden + ")");
-		// hasHover() removed from below
+		// System.out
+		// .println(" return "
+		// + (hover != null && (!hidden && !getOwner().isHidden() &&
+		// isShowing()))
+		// + "\n");
 		if (hover != null) {
 			// return (!getOwner().isHidden() || getOwner().isShowing())
 			// && !hidden;
@@ -366,16 +382,19 @@ public class Widget {
 		return false;
 	}
 
-	public void hasHover(final boolean setValue) {
-		hasHover = setValue;
-		if (hasHover && getOwner() != null) {
-			getOwner().hasHover(true);
-		}
-	}
-
-	public boolean hasHover() {
-		return hasHover;
-	}
+	//
+	// public void hasHover(final boolean setValue) {
+	// hasHover = setValue;
+	// if (getOwner() != null) {
+	// System.out.println(getOwner().getName() + ".hasHover(" + getName()
+	// + ")");
+	// getOwner().hasHover(setValue);
+	// }
+	// }
+	//
+	// public boolean hasHover() {
+	// return hasHover || isHover();
+	// }
 
 	public boolean isHover(final float x, final float y) {
 		return isHover(new PVector(x, y));
@@ -487,27 +506,26 @@ public class Widget {
 		return this;
 	}
 
-	public boolean move(final float x, final float y) {
+	public Widget move(final float x, final float y) {
 		move(new PVector(x, y));
-		return true;
+		return this;
 	}
 
-	public boolean move(final PVector vec) {
+	public Widget move(final PVector vec) {
 		if (!movable) {
-			return false;
+			return this;
 		}
-		final PVector temp = position.get();
-		position.set(vec);
+		getPosition().add(vec);
 		for (final Dashboard menu : menus)
-			if (menu.background != null)
-				menu.move(PVector.add(vec,
-						PVector.sub(menu.background.position, temp)));
-		return true;
+			menu.move(vec);
+		// System.out.println("Moved " + getName() + " to " + getPosition());
+		return this;
 	}
 
 	public void pickup() {
-		if (!isEmpty())
-			invokeCallback("pickup");
+		if (isEmpty())
+			return;
+		invokeCallback("pickup");
 		selected = true;
 	}
 
@@ -640,6 +658,7 @@ public class Widget {
 	}
 
 	public Widget setOwner(final Dashboard dashboard) {
+		// TODO: check for endless loops?
 		owner = dashboard;
 		return this;
 	}
@@ -698,14 +717,19 @@ public class Widget {
 	}
 
 	public Widget setShowing(final boolean value) {
+		// if (getName() == "menuBackground")
+		// System.out.println("**showing_" + getName() + ": " + value);
 		showing = value;
 		// for (final Dashboard menu : menus) {
-		// menu.setShowing(value);
+		// if (!menu.hasHover())
+		// menu.setShowing(false);
 		// }
 		return this;
 	}
 
 	public void setShowing(final boolean thisWidget, final boolean dashboard) {
+		// if (getName() == "menuBackground")
+		// System.out.println("showing_" + getName() + ": " + thisWidget);
 		showing = thisWidget;
 		for (final Dashboard menu : menus) {
 			menu.setShowing(dashboard);
@@ -828,15 +852,21 @@ public class Widget {
 
 	@Override
 	public String toString() {
-		return getClass().getCanonicalName() + ": " + name + ": [shape="
+		final StringBuilder string = new StringBuilder();
+		string.append(getClass().getCanonicalName() + ": " + name + ": [shape="
 				+ shape + ", size=" + size + ", position=" + position + ","
+				+ (isBackground() ? "background," : "") + ""
 				+ (movable ? "moveable," : "") + ""
-				+ (rotatable ? "rotatable," : "") + ""
-				+ (selected ? "selected," : "") + ""
+				+ (rotatable ? "rotatable," : "") + " hover(" + isHover()
+				+ "): " + hover + ", " + (selected ? "selected," : "") + ""
 				+ (scalable ? "scalable," : "") + ""
 				+ (selectable ? "selectable," : "") + ""
-				+ (hidden ? "hidden," : "") + "visible,"
-				+ (fixed ? "fixed," : "") + " text=" + text + "]";
+				+ (hidden ? "hidden," : "") + (showing ? "showing," : "")
+				+ (fixed ? "fixed," : "") + " text=" + text + "]\n");
+		for (final Dashboard menu : menus) {
+			string.append(">" + menu.toString());
+		}
+		return string.toString();
 	}
 
 	HashMap<String, Thread> animations = new HashMap<String, Thread>();
@@ -851,5 +881,12 @@ public class Widget {
 					getSize().mag()));
 		}
 		return PVector.add(getPosition(), PVector.div(getSize(), 2));
+	}
+
+	public boolean belongsTo(Widget otherWidget) {
+		for (Dashboard menu : otherWidget.getMenus())
+			if (menu.getWidgets().contains(this))
+				return true;
+		return false;
 	}
 }

@@ -13,15 +13,13 @@ public class Button extends Widget {
 
 	public Button(final PApplet app) {
 		parent = app;
-		movable = false;
-		selectable = false;
+		setFixed(true);
 	}
 
 	public Button(final PApplet app, final String name) {
 		parent = app;
 		this.name = name;
-		movable = false;
-		selectable = false;
+		setFixed(true);
 	}
 
 	public Button setColors(final int on, final int off, final int highlight) {
@@ -57,7 +55,12 @@ public class Button extends Widget {
 	}
 
 	@Override
-	public void setHover(PVector location) {
+	public void drop() {
+		selected = false;
+	};
+
+	@Override
+	public void setHover(final PVector location) {
 		super.setHover(location);
 		if (location != null) {
 			// we are hovering on TOP
