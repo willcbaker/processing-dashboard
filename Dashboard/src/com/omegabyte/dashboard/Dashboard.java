@@ -430,6 +430,7 @@ public class Dashboard {
 		for (final Widget widget : widgets) {
 			// update all dashes in the widgets
 			// widget.hasHover(false);
+			widget.setShowing(false);
 
 			// back to parent?
 			// System.out.println("Updating: " + getName());
