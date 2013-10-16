@@ -55,7 +55,7 @@ public class Widget {
 	float maxRotation = 0;
 	float orientation = 0;
 
-	// TODO: implement an autohide feature?
+	// TODO: add auto hide feature
 	@SuppressWarnings("unused")
 	private boolean autoHide = true;
 
@@ -65,9 +65,8 @@ public class Widget {
 	private final PVector textAlign = new PVector(PApplet.CENTER,
 			PApplet.CENTER);
 	private PVector textOffset = null;
-	private boolean hasHover;
 
-	HashMap<String, Thread> animations = new HashMap<String, Thread>();
+	private boolean hasHover;
 
 	public Widget() {
 	}
@@ -88,13 +87,6 @@ public class Widget {
 		return this;// menus.size();
 	}
 
-	public boolean belongsTo(Widget otherWidget) {
-		for (Dashboard menu : otherWidget.getMenus())
-			if (menu.getWidgets().contains(this))
-				return true;
-		return false;
-	}
-
 	protected void displayAllMenus() {
 		for (final Dashboard menu : menus) {
 			if (!(menu.isFixed() && menu.isHidden()))
@@ -103,23 +95,23 @@ public class Widget {
 	}
 
 	protected void displayMenu(final Dashboard menu) {
-		if (menu.widgets.isEmpty() || menu.isHidden()) {
+		if (menu.widgets.isEmpty() || (menu.isHidden() && !menu.isShowing())) {
 			return;
 		}
-		if (menu.isShowing()
-				|| (menu.isShowWithOwner() && menu.getOwner().isShowing())) {
-			menu.draw();
-			if (!menu.getBackground().isHover()) {
-				menu.setShowing(false);
-			}
+		menu.draw();
+		if (!menu.getBackground().isHover() && menu.isAutoHide()) {
+			menu.setShowing(false);// menu.setHidden(true);
 		}
+
 	}
 
 	private void displayMenus() {
+		// TODO: fix this, it doesnt work correctly!
+		// problems with subSUB menus
 		for (final Dashboard menu : menus) {
 			// System.out.println("thinking..." + getName() + ".isHover("
 			// + isHover() + ")->" + menu.getName());
-			if (!menu.isHidden() && this.isHover())
+			if (this.isHover())
 				menu.setShowing(true);
 			displayMenu(menu);
 		}
@@ -127,13 +119,17 @@ public class Widget {
 
 	public void draw() {
 		if (hidden && !showing) {
-			System.out.println(getName() + " is HIDDEN and NOT SHOWING");
+			// System.out.println(getName() + " is HIDDEN and NOT SHOWING");
 			return;
 		}
 		parent.pushMatrix();
 		parent.translate(getPosition().x, getPosition().y);
 		parent.rotate(-orientation);
 		drawShape();
+		if (isHidden()) {// must be showing
+			parent.fill(200, 70);
+			parent.rect(-10, -10, size.x + 20, size.y + 20);
+		}
 		parent.popMatrix();
 		if (selected)
 			displayAllMenus();
@@ -246,14 +242,6 @@ public class Widget {
 		return alpha;
 	}
 
-	public PVector getCenter() {
-		if (getShape() == Shape.circle) {
-			return PVector.add(getPosition(), new PVector(getSize().mag(),
-					getSize().mag()));
-		}
-		return PVector.add(getPosition(), PVector.div(getSize(), 2));
-	}
-
 	public int getColor() {
 		return color;
 	}
@@ -320,20 +308,6 @@ public class Widget {
 
 	float getTitleSize() {
 		return PApplet.abs(titleSize);
-	}
-
-	public boolean hasHover() {
-		return hasHover || isHover();
-	}
-
-	// TODO: fix hasHover and implement so we can use phantoms again!
-	public void hasHover(final boolean setValue) {
-		hasHover = setValue;
-		if (getOwner() != null) {
-			System.out.println(getOwner().getName() + ".hasHover(" + getName()
-					+ ")");
-			getOwner().hasHover(setValue);
-		}
 	}
 
 	protected void invokeCallback() {
@@ -408,9 +382,26 @@ public class Widget {
 		if (hover != null) {
 			// return (!getOwner().isHidden() || getOwner().isShowing())
 			// && !hidden;
-			return (!hidden && !getOwner().isHidden() && isShowing());
+			return ((!hidden || isShowing())); // && !getOwner().isHidden());//
+												// removed
+												// &&
+												// isShowing()
 		}
 		return false;
+	}
+
+	// TODO: FIX THIS and re implement hasHover (for Phantoms)
+	public void hasHover(final boolean setValue) {
+		hasHover = setValue;
+		if (getOwner() != null) {
+			System.out.println(getOwner().getName() + ".hasHover(" + getName()
+					+ ")");
+			getOwner().hasHover(setValue);
+		}
+	}
+
+	public boolean hasHover() {
+		return hasHover;
 	}
 
 	public boolean isHover(final float x, final float y) {
@@ -486,10 +477,6 @@ public class Widget {
 
 	public boolean isSelected() {
 		return selected;
-	}
-
-	public boolean isShowing() {
-		return showing;
 	}
 
 	public boolean isSnap() {
@@ -733,6 +720,10 @@ public class Widget {
 		return this;
 	}
 
+	public boolean isShowing() {
+		return showing;
+	}
+
 	public Widget setShowing(final boolean value) {
 		// if (getName() == "menuBackground")
 		// System.out.println("**showing_" + getName() + ": " + value);
@@ -886,7 +877,24 @@ public class Widget {
 		return string.toString();
 	}
 
+	HashMap<String, Thread> animations = new HashMap<String, Thread>();
+
 	public void trigger(final Animation animation) {
 		animation.trigger();
+	}
+
+	public PVector getCenter() {
+		if (getShape() == Shape.circle) {
+			return PVector.add(getPosition(), new PVector(getSize().mag(),
+					getSize().mag()));
+		}
+		return PVector.add(getPosition(), PVector.div(getSize(), 2));
+	}
+
+	public boolean belongsTo(final Widget otherWidget) {
+		for (final Dashboard menu : otherWidget.getMenus())
+			if (menu.getWidgets().contains(this))
+				return true;
+		return false;
 	}
 }

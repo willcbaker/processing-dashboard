@@ -25,8 +25,36 @@ public class Dashboard {
 	private Widget owner = empty;
 	private Widget interacting = null;
 	private boolean fixed = false;
+	private boolean autoHide = true;
 
-	// TODO:remove moving, for favor of interacting
+	public boolean isFixed() {
+		return fixed;
+	}
+
+	public void setFixed(final boolean fixed) {
+		this.fixed = fixed;
+	}
+
+	public boolean isShowWithOwner() {
+		return showWithOwner;
+	}
+
+	/**
+	 * Enable/Disable the ability to grab through the background.
+	 * 
+	 * If enabled, you can act on widgets below a background.
+	 * 
+	 * @param grabThroughBackground
+	 *            default enabled
+	 */
+	public Dashboard grabThroughBackground(final boolean grabThroughBackground) {
+		this.grabThroughBackground = grabThroughBackground;
+		return this;
+	}
+
+	public boolean isGrabThroughBackground() {
+		return grabThroughBackground;
+	}
 
 	public Dashboard(final PApplet app) {
 		parent = app;
@@ -63,6 +91,7 @@ public class Dashboard {
 			return;
 		if (background != empty)
 			background.draw();
+		// TODO:Make sure multiple backgrounds work?
 		for (final Widget widget : widgets) {
 			// if (getName() == "menu")
 			// if (widget.getName() != null)
@@ -128,47 +157,6 @@ public class Dashboard {
 		return widgets;
 	}
 
-	public void grab(final PVector grabLocation) {
-		// System.out.println("Grabbed: " + grabLocation);
-		grabbed = grabLocation;
-	}
-
-	/**
-	 * Enable/Disable the ability to grab through the background.
-	 * 
-	 * If enabled, you can act on widgets below a background.
-	 * 
-	 * @param grabThroughBackground
-	 *            default enabled
-	 */
-	public Dashboard grabThroughBackground(final boolean grabThroughBackground) {
-		this.grabThroughBackground = grabThroughBackground;
-		return this;
-	}
-
-	// TODO: fix hasHover and implement so we can use phantoms again!
-	public boolean hasHover() {
-		return hasHover;
-	}
-
-	public void hasHover(final boolean setValue) {
-		hasHover = setValue;
-		if (hasHover && !getOwner().isEmpty()) {
-			System.out.println(getOwner().getName() + ".hasHover(" + getName()
-					+ ")");
-			getOwner().hasHover(true);
-		}
-
-	}
-
-	public boolean isFixed() {
-		return fixed;
-	}
-
-	public boolean isGrabThroughBackground() {
-		return grabThroughBackground;
-	}
-
 	public boolean isHidden() {
 		return hidden;
 	}
@@ -179,10 +167,6 @@ public class Dashboard {
 
 	public boolean isShowing() {
 		return showing;
-	}
-
-	public boolean isShowWithOwner() {
-		return showWithOwner;
 	}
 
 	public Dashboard lock() {
@@ -227,28 +211,7 @@ public class Dashboard {
 		return this;
 	}
 
-	void pickup(final Widget widget) {
-		// if (widget.getTitle() == "EMPTY")
-		// return;
-		if (moving == null) {
-			if (widget.isBackground()) {
-				if (!widget.getOwner().isMovable()) {
-					return;
-				}
-			}
-			if (!widget.isEmpty()) {
-				widget.pickup();// selected = true;
-				// grab(PVector.sub(widget.position, grab));
-				moving = widget;
-				// System.out.println(widgets.size() + "Picked up: "
-				// + widget.getName() + " at " + grab + " " + " relative "
-				// + grabbed + " " + widget.position);
-			}
-		}
-	}
-
-	// TODO: replace NEW with OLD
-	void pickupNew(final Widget widget, final PVector location) {
+	void pickup(final Widget widget, final PVector location) {
 		if (interacting == null) {
 			// System.out.println("Picking up " + widget.getName());
 			// if (!widget.isEmpty()) {
@@ -257,40 +220,6 @@ public class Dashboard {
 			interacting = widget;
 			// }
 		}
-	}
-
-	public void print() {
-		StringBuilder string = new StringBuilder();
-		string.append(" +++" + getName() + "\n");// 0th level
-		for (Widget widget : getWidgets()) {
-			string.append("  |---" + widget.getName() + "\n");
-			for (Dashboard menu : widget.getMenus()) {
-				menu.print_rest(2, string);// 1st level
-			}
-		}
-		System.out.println(string);
-	}
-
-	private void print_rest(int level, StringBuilder string) {
-
-		if (getOwner() != null && getOwner().getOwner() != null) {
-			for (int i = 0; i < level; i++) {
-				string.append("  ");
-			}
-		}
-		string.append("|+++" + getName() + "\n");// next level
-		for (Widget widget : getWidgets()) {
-			if (getOwner() != null && getOwner().getOwner() != null) {
-				for (int i = 0; i < level + 1; i++) {
-					string.append("  ");
-				}
-			}
-			string.append("|---" + widget.getName() + "\n");
-			for (Dashboard menu : widget.getMenus()) {
-				menu.print_rest(level + 1, string);// next level
-			}
-		}
-
 	}
 
 	public Dashboard resize(final float scale) {
@@ -337,12 +266,9 @@ public class Dashboard {
 		return this;
 	}
 
-	public void setFixed(final boolean fixed) {
-		this.fixed = fixed;
-	}
-
-	public void setHidden(final boolean b) {
+	public Dashboard setHidden(final boolean b) {
 		hidden = b;
+		return this;
 	}
 
 	public Dashboard setMovable(final boolean value) {
@@ -379,11 +305,6 @@ public class Dashboard {
 		}
 	}
 
-	public Dashboard showWithOwner(final boolean value) {
-		showWithOwner = value;
-		return this;
-	}
-
 	@Override
 	public String toString() {
 		final StringBuilder string = new StringBuilder();
@@ -412,34 +333,20 @@ public class Dashboard {
 		return string.toString();
 	}
 
-	// private void print_rest(int level, StringBuilder string) {
-	// // TODO: create a full branch structure
-	// Iterator<Widget> wdg = widgets.iterator();
-	// while (wdg.hasNext()) {
-	// Widget element = wdg.next();
-	// // Iterator<Dashboard> mnu = element.getMenus().iterator();
-	// System.out.print(element + " ");
-	// }
-	//
-	// if (getOwner() != null && getOwner().getOwner() != null) {
-	// for (int i = 0; i < level; i++) {
-	// string.append("  ");
-	// }
-	// }
-	// string.append("|+++" + getName() + "\n");// next level
-	// for (Widget widget : getWidgets()) {
-	// if (getOwner() != null && getOwner().getOwner() != null) {
-	// for (int i = 0; i < level + 1; i++) {
-	// string.append("  ");
-	// }
-	// }
-	// string.append("|---" + widget.getName() + "\n");
-	// for (Dashboard menu : widget.getMenus()) {
-	// menu.print_rest(level + 2, string);// next level
-	// }
-	// }
-	//
-	// }
+	// TODO: fix this.
+	public boolean hasHover() {
+		return hasHover;
+	}
+
+	public void hasHover(final boolean setValue) {
+		hasHover = setValue;
+		if (hasHover && !getOwner().isEmpty()) {
+			System.out.println(getOwner().getName() + ".hasHover(" + getName()
+					+ ")");
+			getOwner().hasHover(true);
+		}
+
+	}
 
 	/**
 	 * This function will update and draw the dashboard. This is only to be
@@ -455,18 +362,6 @@ public class Dashboard {
 		update(location, grab, rotate, 0, scale, 1.0f);
 	}
 
-	// private void getShowing() {
-	// System.out.println(getName() + " showing: ");
-	// for (Widget widget : getWidgets()) {
-	// if (widget.isShowing()) {
-	// System.out.println("   " + widget.getName());
-	// }
-	// for (Dashboard menu : widget.getMenus()) {
-	// menu.getShowing();
-	// }
-	// }
-	// }
-
 	/**
 	 * This function will update and draw the dashboard. This is only to be
 	 * called from Super, untested for lower dashboards. This will show the
@@ -479,13 +374,14 @@ public class Dashboard {
 	 * @param scaling
 	 * @param scale
 	 */
-	public void update(PVector location, boolean grab, boolean rotating,
-			float rotation, boolean scaling, float scale) {
+	public void update(final PVector location, final boolean grab,
+			final boolean rotating, final float rotation,
+			final boolean scaling, final float scale) {
 
-		for (Widget widget : widgets) {// hope this is super
-			if (!widget.isHidden())
-				widget.setShowing(true);
-		}
+		// for (final Widget widget : widgets) {// hope this is super
+		// if (!widget.isHidden())
+		// widget.setShowing(true);
+		// }
 		draw();
 
 		handle.clear();
@@ -494,7 +390,7 @@ public class Dashboard {
 		updateChildren(handle, location);
 		// have handled all possible widgets..?
 		if (grab) {
-			pickupNew(handle.hover, location);
+			pickup(handle.hover, location);
 		} else {
 			dropNew();
 		}
@@ -526,7 +422,6 @@ public class Dashboard {
 				interacting.resize(scale);
 			}
 		}
-		// draw();
 	}
 
 	public void updateChildren(final Handler handler, final PVector location) {
@@ -558,6 +453,100 @@ public class Dashboard {
 		}
 	}
 
+	public void print() {
+		final StringBuilder string = new StringBuilder();
+		string.append(" +++" + getName() + "\n");// 0th level
+		for (final Widget widget : getWidgets()) {
+			string.append("  |---" + widget.getName() + "\n");
+			for (final Dashboard menu : widget.getMenus()) {
+				menu.print_rest2(2, string);// 1st level
+			}
+		}
+		System.out.println(string);
+	}
+
+	// private void print_rest(int level, StringBuilder string) {
+	// // TODO: create a full branch structure
+	// Iterator<Widget> wdg = widgets.iterator();
+	// while (wdg.hasNext()) {
+	// Widget element = wdg.next();
+	// // Iterator<Dashboard> mnu = element.getMenus().iterator();
+	// System.out.print(element + " ");
+	// }
+	//
+	// if (getOwner() != null && getOwner().getOwner() != null) {
+	// for (int i = 0; i < level; i++) {
+	// string.append("  ");
+	// }
+	// }
+	// string.append("|+++" + getName() + "\n");// next level
+	// for (Widget widget : getWidgets()) {
+	// if (getOwner() != null && getOwner().getOwner() != null) {
+	// for (int i = 0; i < level + 1; i++) {
+	// string.append("  ");
+	// }
+	// }
+	// string.append("|---" + widget.getName() + "\n");
+	// for (Dashboard menu : widget.getMenus()) {
+	// menu.print_rest(level + 2, string);// next level
+	// }
+	// }
+	//
+	// }
+
+	private void print_rest2(final int level, final StringBuilder string) {
+
+		if (getOwner() != null && getOwner().getOwner() != null) {
+			for (int i = 0; i < level; i++) {
+				string.append("  ");
+			}
+		}
+		string.append("|+++" + getName() + "\n");// next level
+		for (final Widget widget : getWidgets()) {
+			if (getOwner() != null && getOwner().getOwner() != null) {
+				for (int i = 0; i < level + 1; i++) {
+					string.append("  ");
+				}
+			}
+			string.append("|---" + widget.getName() + "\n");
+			for (final Dashboard menu : widget.getMenus()) {
+				menu.print_rest2(level + 1, string);// next level
+			}
+		}
+
+	}
+
+	// private void getShowing() {
+	// System.out.println(getName() + " showing: ");
+	// for (Widget widget : getWidgets()) {
+	// if (widget.isShowing()) {
+	// System.out.println("   " + widget.getName());
+	// }
+	// for (Dashboard menu : widget.getMenus()) {
+	// menu.getShowing();
+	// }
+	// }
+	// }
+
+	public void grab(final PVector grabLocation) {
+		// System.out.println("Grabbed: " + grabLocation);
+		grabbed = grabLocation;
+	}
+
+	public Dashboard showWithOwner(final boolean value) {
+		showWithOwner = value;
+		return this;
+	}
+
+	public Dashboard setAutoHide(boolean autoHide) {
+		this.autoHide = autoHide;
+		return this;
+	}
+
+	public boolean isAutoHide() {
+		return autoHide;
+	}
+
 }
 
 class Handler {
@@ -581,8 +570,8 @@ class Handler {
 		// + widget.getOwner().getName() + " test against "
 		// + this.hover.getName());
 
-		if (widget.isEmpty()) {
-			// System.out.println("Widget is EMPTY, rejected.");
+		if (widget.isEmpty() || widget.isFixed()) {
+			// System.out.println("Widget is EMPTY or FIXED, rejected.");
 			return;
 		}
 		if (hover.isEmpty() || hover.isBackground()) {

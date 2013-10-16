@@ -14,6 +14,7 @@ public class Phantom extends Widget {
 		this.one = one;
 		this.two = two;
 		this.setFixed(true);
+		this.setEmpty(true);
 		this.setBackground(true);
 		this.setAlpha(0);
 		// this.setAlpha(50);
@@ -55,5 +56,4 @@ public class Phantom extends Widget {
 	public void rotate(final float value) {
 		orientation += value;
 	};
-
 }

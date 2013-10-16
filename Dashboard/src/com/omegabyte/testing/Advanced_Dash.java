@@ -14,9 +14,12 @@ import com.omegabyte.dashboard.Widget;
 @SuppressWarnings({ "serial" })
 public class Advanced_Dash extends PApplet {
 
+	public static final int CANVAS_WIDTH = 640;
+	public static final int CANVAS_HEIGHT = 360;
+
 	@Override
 	public void setup() {
-		size(640, 360);
+		size(CANVAS_WIDTH, CANVAS_HEIGHT);
 
 		// The file "bot1.svg" must be in the data folder
 		// of the current sketch to load successfully
@@ -79,9 +82,10 @@ public class Advanced_Dash extends PApplet {
 	Phantom phantom = new Phantom(background, sliderBackground);
 
 	Dashboard menu = new Dashboard(this, "menu").add(button).add(phantom)
-	// .add(new Widget(this, "slidersBackround").setBackground(true)
-	// .setSize(80, 140).addMenu(sliders).move(400, 30)
-	// .setFixed(true))
+			.setHidden(true)
+			// .add(new Widget(this, "slidersBackround").setBackground(true)
+			// .setSize(80, 140).addMenu(sliders).move(400, 30)
+			// .setFixed(true))
 			.setBackground(background.addMenu(sliders))
 			// .lock()
 			.setMovable(true).grabThroughBackground(false);
@@ -135,7 +139,7 @@ public class Advanced_Dash extends PApplet {
 
 	// A callback is referred to by call_NAME_OF_WIDGET
 	public void call_button(final Widget widget) {
-		println("Button setMovable(: " + button.isActive() + ")");
+		println("Button setMovable(" + button.isActive() + ")");
 	}
 
 	public static void main(final String args[]) {

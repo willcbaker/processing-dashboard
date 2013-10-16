@@ -10,16 +10,25 @@ public class Button extends Widget {
 	int colorOn = 255;
 	int colorOff = 0;
 	int colorHighlight = 110;
+	private boolean onRelease = true;
 
 	public Button(final PApplet app) {
 		parent = app;
-		setFixed(true);
+		// setFixed(true);
+		movable = false;
+		rotatable = false;
+		scalable = false;
+		selectable = false;
 	}
 
 	public Button(final PApplet app, final String name) {
 		parent = app;
 		this.name = name;
-		setFixed(true);
+
+		movable = false;
+		rotatable = false;
+		scalable = false;
+		selectable = false;
 	}
 
 	public Button setColors(final int on, final int off, final int highlight) {
@@ -54,9 +63,26 @@ public class Button extends Widget {
 		return this;
 	}
 
+	/**
+	 * The button is only "pressed if it is released while hovering" aka "oops i
+	 * clicked the button but havnt let go of the mouse!" Default enabled.
+	 * 
+	 * @param value
+	 *            if enabbled (default) the button is not pressed until you
+	 *            release
+	 * @return the button
+	 */
+	public Button setOnRelease(boolean value) {
+		onRelease = value;
+		return this;
+	}
+
 	@Override
 	public void drop() {
 		selected = false;
+		if (isHover() && onRelease) {
+			selected = true;
+		}
 	};
 
 	@Override
@@ -79,7 +105,8 @@ public class Button extends Widget {
 
 	@Override
 	public void pickup() {
-		selected = true;
+		if (!onRelease)
+			selected = true;
 	}
 
 	@Override

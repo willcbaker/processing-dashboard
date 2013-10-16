@@ -14,6 +14,9 @@ import com.omegabyte.dashboard.Widget;
 @SuppressWarnings({ "serial" })
 public class Animation_Sequence extends PApplet {
 
+	public static final int CANVAS_WIDTH = 300;
+	public static final int CANVAS_HEIGHT = 300;
+
 	Widget widget = new Widget(this, "widget");// create the widget object
 	Button button = new Button(this, "button");// create the widget object
 	Dashboard dashboard = new Dashboard(this, "dashboard");// create the
@@ -29,7 +32,7 @@ public class Animation_Sequence extends PApplet {
 	// this will run once for setup
 	@Override
 	public void setup() {
-		size(300, 300);// processing.opengl.PGraphics3D);
+		size(CANVAS_WIDTH, CANVAS_HEIGHT);// processing.opengl.PGraphics3D);
 		widget.setSize(50, 50);// set the size of the widget
 		widget.setPosition(100, 100);// set the position of the widget
 		button.setSize(100, 40);// set the size of the widget
@@ -64,13 +67,13 @@ public class Animation_Sequence extends PApplet {
 	}
 
 	// The drop callback is referred to by call_NAME
-	public void call_button(Widget widget) {
+	public void call_button(final Widget widget) {
 		println("Presed: " + widget.getName());
 		sequence.trigger();// animation.start();
 	}
 
 	// The pickup callback is referred to by pickup_widget
-	public void pickup(Widget widget) {
+	public void pickup(final Widget widget) {
 		println("Picked Up: " + widget.getName());
 	}
 }

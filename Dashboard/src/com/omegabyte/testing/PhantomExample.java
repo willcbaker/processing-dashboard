@@ -13,6 +13,8 @@ import com.omegabyte.dashboard.Widget;
 @SuppressWarnings({ "serial" })
 public class PhantomExample extends PApplet {
 
+	public static final int CANVAS_HEIGHT = 500;
+	public static final int CANVAS_WIDTH = 500;
 	Button button = new Button(this, "button").setSize(50, 50).setPosition(100,
 			100);
 	Button toggle = new Button(this, "toggle").setSize(50, 50).setPosition(200,
@@ -34,7 +36,7 @@ public class PhantomExample extends PApplet {
 	// this will run once for setup
 	@Override
 	public void setup() {
-		size(500, 500);// processing.opengl.PGraphics3D);
+		size(CANVAS_WIDTH, CANVAS_HEIGHT);// processing.opengl.PGraphics3D);
 		// dash.add(button).add(menuBackground);
 		object.getCenter();
 	}

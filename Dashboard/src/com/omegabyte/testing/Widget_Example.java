@@ -10,6 +10,9 @@ import com.omegabyte.dashboard.Widget;
 @SuppressWarnings({ "serial" })
 public class Widget_Example extends PApplet {
 
+	public static final int CANVAS_HEIGHT = 500;
+	public static final int CANVAS_WIDTH = 500;
+
 	Widget widget = new Widget(this, "widget");// create the widget object
 	Snap animation = new Snap(widget);// create the Snap Animation object
 
@@ -25,6 +28,7 @@ public class Widget_Example extends PApplet {
 	@Override
 	public void draw() {
 		background(200);// redraw the background
+		widget.draw();
 	}
 
 	public static void main(final String args[]) {
