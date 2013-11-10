@@ -36,6 +36,7 @@ public class PhantomExample extends PApplet {
 	// this will run once for setup
 	@Override
 	public void setup() {
+		System.out.println("Phantom Example");
 		size(CANVAS_WIDTH, CANVAS_HEIGHT);// processing.opengl.PGraphics3D);
 		// dash.add(button).add(menuBackground);
 		object.getCenter();

@@ -1,6 +1,5 @@
 package com.omegabyte.dashboard;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -11,12 +10,8 @@ import processing.core.PVector;
 
 import com.omegabyte.animations.Animation;
 
-public class Widget implements Cloneable, Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+//TODO: must create PFonts for text and title
+public class Widget {
 
 	public enum Shape {
 		circle, rectangle, custom, image, sphere
@@ -42,7 +37,7 @@ public class Widget implements Cloneable, Serializable {
 
 	protected PVector size = new PVector(0, 0);
 
-	protected PVector position = new PVector(0, 0);
+	protected PVector position = new PVector(0, 0);;
 
 	protected float minSize = 80;
 	protected float maxSize = 200;
@@ -101,14 +96,16 @@ public class Widget implements Cloneable, Serializable {
 	}
 
 	protected void displayMenu(final Dashboard menu) {
-		if (menu.widgets.isEmpty() || (menu.isHidden() && !menu.isShowing())) {
+		if (menu.widgets.isEmpty() || menu.isHidden()) {
 			return;
 		}
-		menu.draw();
-		if (!menu.getBackground().isHover() && menu.isAutoHide()) {
-			menu.setShowing(false);// menu.setHidden(true);
+		if (menu.isShowing()
+				|| (menu.isShowWithOwner() && menu.getOwner().isShowing())) {
+			menu.draw();
+			if (!menu.getBackground().isHover()) {
+				menu.setShowing(false);
+			}
 		}
-
 	}
 
 	private void displayMenus() {
@@ -117,7 +114,7 @@ public class Widget implements Cloneable, Serializable {
 		for (final Dashboard menu : menus) {
 			// System.out.println("thinking..." + getName() + ".isHover("
 			// + isHover() + ")->" + menu.getName());
-			if (this.isHover())
+			if (!menu.isHidden() && this.isHover())
 				menu.setShowing(true);
 			displayMenu(menu);
 		}
@@ -128,15 +125,10 @@ public class Widget implements Cloneable, Serializable {
 			// System.out.println(getName() + " is HIDDEN and NOT SHOWING");
 			return;
 		}
-
 		parent.pushMatrix();
 		parent.translate(getPosition().x, getPosition().y);
 		parent.rotate(-orientation);
 		drawShape();
-		if (isHidden()) {// must be showing
-			parent.fill(200, 70);
-			parent.rect(-10, -10, size.x + 20, size.y + 20);
-		}
 		parent.popMatrix();
 		if (selected)
 			displayAllMenus();
@@ -225,8 +217,7 @@ public class Widget implements Cloneable, Serializable {
 	private void drawText() {
 		if (textOffset == null)
 			textOffset = new PVector(size.x / 2, size.y / 2);
-		parent.fill(textColor,
-				PApplet.constrain((float) (alpha * 1.1), 0f, 255f));
+		parent.fill(textColor);
 		parent.textAlign(PApplet.CENTER, PApplet.TOP);
 		parent.textSize(getTitleSize());
 		parent.text(title, size.x / 2, (float) (getTitleSize() * 0.1));
@@ -317,7 +308,7 @@ public class Widget implements Cloneable, Serializable {
 		return PApplet.abs(titleSize);
 	}
 
-	protected void invokeCallback() {
+	public void invokeCallback() {
 
 		if (parent != null) {
 			try {
@@ -325,7 +316,7 @@ public class Widget implements Cloneable, Serializable {
 						.getMethod("call_" + this.getName(), Widget.class)
 						.invoke(parent, this);
 			} catch (final Exception e) {
-				// e.printStackTrace();
+				e.printStackTrace();
 				PApplet.println(e.getMessage() + " CALLBACK ERROR");
 			}
 		}
@@ -337,18 +328,25 @@ public class Widget implements Cloneable, Serializable {
 	 * 
 	 * @param type
 	 */
-	protected void invokeCallback(final String type) {
+	public void invokeCallback(final String type) {
 
 		if (parent != null) {
 			try {
 				parent.getClass().getMethod(type, Widget.class)
 						.invoke(parent, this);
+			} catch (final Exception e) {
+				// e.printStackTrace();
+				PApplet.println(e.getMessage() + " CALLBACK ERROR");
+				// This is an optional callback, ignore the error
+				// PApplet.println(e.getMessage() + " CALLBACK ERROR");
+			}
+			try {
 				parent.getClass()
 						.getMethod(type + "_" + getName(), Widget.class)
 						.invoke(parent, this);
 			} catch (final Exception e) {
 				// e.printStackTrace();
-				// PApplet.println(e.getMessage() + " CALLBACK ERROR");
+				PApplet.println(e.getMessage() + " CALLBACK ERROR");
 				// This is an optional callback, ignore the error
 				// PApplet.println(e.getMessage() + " CALLBACK ERROR");
 			}
@@ -389,10 +387,7 @@ public class Widget implements Cloneable, Serializable {
 		if (hover != null) {
 			// return (!getOwner().isHidden() || getOwner().isShowing())
 			// && !hidden;
-			return ((!hidden || isShowing())); // && !getOwner().isHidden());//
-												// removed
-												// &&
-												// isShowing()
+			return (!hidden && (getOwner() == null || !getOwner().isHidden()) && isShowing());
 		}
 		return false;
 	}
@@ -688,14 +683,9 @@ public class Widget implements Cloneable, Serializable {
 	}
 
 	public Widget setPosition(final PVector position) {
-		PVector old = position.get();
-		System.out.println(getName() + " old: " + old);
 		this.position = position;
-		System.out.println("pos: " + position);
-		old.sub(position);
-		System.out.println("new: " + old);
 		for (final Dashboard menu : menus)
-			menu.move(old);
+			menu.move(position);
 		return this;
 	}
 
@@ -850,7 +840,7 @@ public class Widget implements Cloneable, Serializable {
 				while (PVector.dist(widget.getPosition(), widget.snapPosition) > PVector
 						.dist(PVector.add(widget.getPosition(), direction),
 								widget.snapPosition)) {
-					widget.move(PVector.add(widget.getPosition(), direction));
+					widget.move(direction);
 					// Ok, let's wait for however long we should wait
 					try {
 						sleep((long) (1000 / parent.frameRate));
@@ -909,5 +899,4 @@ public class Widget implements Cloneable, Serializable {
 				return true;
 		return false;
 	}
-
 }

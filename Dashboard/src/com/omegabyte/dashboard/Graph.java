@@ -256,6 +256,10 @@ public class Graph extends Widget {
 		return displayTrace;
 	}
 
+	public void clear() {
+		data = new double[data.length];
+	}
+
 	boolean isWindowed(final int index) {
 		boolean windowed = false;
 		for (final int[] window : windows) {
@@ -311,7 +315,8 @@ public class Graph extends Widget {
 					parent.fill((int) (PApplet.map((float) point, (float) min,
 							(float) max, 0xFF022020, 0xFF06FFBB)));
 				parent.ellipse(index, PApplet.map((float) (point), (float) min,
-						(float) max, size.y, 0), markerSize, markerSize);
+						(float) max, size.y - 2 - markerSize, 0), markerSize,
+						markerSize);
 			}
 			index += by;
 		}

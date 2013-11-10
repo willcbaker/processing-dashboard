@@ -1,12 +1,10 @@
 package com.omegabyte.dashboard;
 
-import java.io.Serializable;
-
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 
-public class Sphere extends Widget implements Cloneable, Serializable {
+public class Sphere extends Widget {
 
 	public float rotationZ;
 

@@ -9,17 +9,23 @@ public class AnimationSequence extends Thread {
 		super();
 	}
 
-	public void add(Animation animation) {
+	public void quit() {
+		for (final Animation animation : sequence) {
+			animation.quit();
+		}
+	}
+
+	public void add(final Animation animation) {
 		sequence.add(animation);
 	}
 
-	public void add(ArrayList<Animation> animations) {
+	public void add(final ArrayList<Animation> animations) {
 		sequence.addAll(animations);
 	}
 
 	@Override
 	public void start() {
-		for (Animation animation : sequence) {
+		for (final Animation animation : sequence) {
 			animation.setRecursive(false);// cannot be repeatable.
 		}
 		super.start();
@@ -27,7 +33,7 @@ public class AnimationSequence extends Thread {
 
 	@Override
 	public void run() {
-		for (Animation animation : sequence) {
+		for (final Animation animation : sequence) {
 			// System.out.println("Starting " + animation.getName());
 			animation.start();
 			while (animation.isAlive()) {

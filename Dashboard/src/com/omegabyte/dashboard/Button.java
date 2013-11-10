@@ -1,35 +1,26 @@
 package com.omegabyte.dashboard;
 
-import java.io.Serializable;
-
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class Button extends Widget implements Cloneable, Serializable {
+//TODO: strange effects (with all text) when button is drawn first with text?
+public class Button extends Widget {
 	boolean active = false;
 	boolean stillHover = false;
 	boolean highlight = true;
 	int colorOn = 255;
 	int colorOff = 0;
 	int colorHighlight = 110;
-	private boolean onRelease = true;
 
 	public Button(final PApplet app) {
-		super(app);
-		// setFixed(true);
-		movable = false;
-		rotatable = false;
-		scalable = false;
-		selectable = false;
+		parent = app;
+		setFixed(true);
 	}
 
 	public Button(final PApplet app, final String name) {
-		super(app, name);
-
-		movable = false;
-		rotatable = false;
-		scalable = false;
-		selectable = false;
+		parent = app;
+		this.name = name;
+		setFixed(true);
 	}
 
 	public Button setColors(final int on, final int off, final int highlight) {
@@ -64,26 +55,9 @@ public class Button extends Widget implements Cloneable, Serializable {
 		return this;
 	}
 
-	/**
-	 * The button is only "pressed if it is released while hovering" aka "oops i
-	 * clicked the button but havnt let go of the mouse!" Default enabled.
-	 * 
-	 * @param value
-	 *            if enabbled (default) the button is not pressed until you
-	 *            release
-	 * @return the button
-	 */
-	public Button setOnRelease(boolean value) {
-		onRelease = value;
-		return this;
-	}
-
 	@Override
 	public void drop() {
 		selected = false;
-		if (isHover() && onRelease) {
-			selected = true;
-		}
 	};
 
 	@Override
@@ -106,8 +80,7 @@ public class Button extends Widget implements Cloneable, Serializable {
 
 	@Override
 	public void pickup() {
-		if (!onRelease)
-			selected = true;
+		selected = true;
 	}
 
 	@Override
@@ -124,14 +97,18 @@ public class Button extends Widget implements Cloneable, Serializable {
 				selected = false;
 				invokeCallback();
 				updateColor();
+				// } else {
+				// System.out.println(getName() + " highlight: "
+				// + PApplet.hex(color));
+				// setColor(colorHighlight);
 			}
 
 		} else {
 			stillHover = false;
 			updateColor();
 		}
-		// if (hover && (!stillHover || (colorOn == colorOff)) && highlight)
-		// color = colorHighlight;
+		if (hover && (!stillHover || (colorOn == colorOff)) && highlight)
+			setColor(colorHighlight);
 		return hover;
 	}
 

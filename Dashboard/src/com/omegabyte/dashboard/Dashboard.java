@@ -1,19 +1,13 @@
 package com.omegabyte.dashboard;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class Dashboard implements Cloneable, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
+public class Dashboard {
 	private String name;
-	private PApplet parent = null;
+	protected PApplet parent = null;
 	private PVector grabbed = new PVector(0, 0);
 	private final Handler handle;
 
@@ -26,12 +20,10 @@ public class Dashboard implements Cloneable, Serializable {
 
 	ArrayList<Widget> widgets = new ArrayList<Widget>();
 	private Widget empty = null;// set Me!
-	private Widget moving = empty;
 	private Widget background = empty;
 	private Widget owner = empty;
-	private Widget interacting = null;
+	protected Widget interacting = null;
 	private boolean fixed = false;
-	private boolean autoHide = true;
 
 	public boolean isFixed() {
 		return fixed;
@@ -66,7 +58,6 @@ public class Dashboard implements Cloneable, Serializable {
 		parent = app;
 		empty = new Widget(parent, "EMPTY").setHidden(true).setMovable(false)
 				.setTitle("EMPTY").setEmpty(true).setOwner(this);
-		moving = empty;// prevents moving objects until selected
 		background = empty;
 		owner = empty;
 		handle = new Handler(empty);
@@ -97,7 +88,6 @@ public class Dashboard implements Cloneable, Serializable {
 			return;
 		if (background != empty)
 			background.draw();
-		// TODO:Make sure multiple backgrounds work?
 		for (final Widget widget : widgets) {
 			// if (getName() == "menu")
 			// if (widget.getName() != null)
@@ -109,15 +99,6 @@ public class Dashboard implements Cloneable, Serializable {
 	}
 
 	void drop() {
-		if (moving != null) {
-			moving.drop();// selected = false;
-			moving = null;
-			// System.out.println("DROPPED.");// Picked up: " +
-			// moving.getTitle());
-		}
-	}
-
-	void dropNew() {
 		if (interacting != null) {
 			// System.out.println("Dropping " + interacting.getName());
 			interacting.drop();// selected = false;
@@ -133,8 +114,8 @@ public class Dashboard implements Cloneable, Serializable {
 		return background;
 	}
 
-	public Widget getMoving() {
-		return moving;
+	public Widget getInteracting() {
+		return interacting;
 	}
 
 	public String getName() {
@@ -272,9 +253,8 @@ public class Dashboard implements Cloneable, Serializable {
 		return this;
 	}
 
-	public Dashboard setHidden(final boolean b) {
+	public void setHidden(final boolean b) {
 		hidden = b;
-		return this;
 	}
 
 	public Dashboard setMovable(final boolean value) {
@@ -384,10 +364,10 @@ public class Dashboard implements Cloneable, Serializable {
 			final boolean rotating, final float rotation,
 			final boolean scaling, final float scale) {
 
-		// for (final Widget widget : widgets) {// hope this is super
-		// if (!widget.isHidden())
-		// widget.setShowing(true);
-		// }
+		for (final Widget widget : widgets) {// hope this is super
+			if (!widget.isHidden())
+				widget.setShowing(true);
+		}
 		draw();
 
 		handle.clear();
@@ -398,7 +378,7 @@ public class Dashboard implements Cloneable, Serializable {
 		if (grab) {
 			pickup(handle.hover, location);
 		} else {
-			dropNew();
+			drop();
 		}
 		// if (!handle.hover.isEmpty())
 		// handle.hover.hasHover(true);// push upstream hasHover
@@ -428,6 +408,10 @@ public class Dashboard implements Cloneable, Serializable {
 				interacting.resize(scale);
 			}
 		}
+		for (final Widget widget : widgets) {// reset hidden widgets
+			if (widget.isHidden())
+				widget.setShowing(false);
+		}
 	}
 
 	public void updateChildren(final Handler handler, final PVector location) {
@@ -436,7 +420,6 @@ public class Dashboard implements Cloneable, Serializable {
 		for (final Widget widget : widgets) {
 			// update all dashes in the widgets
 			// widget.hasHover(false);
-			widget.setShowing(false);
 
 			// back to parent?
 			// System.out.println("Updating: " + getName());
@@ -545,15 +528,6 @@ public class Dashboard implements Cloneable, Serializable {
 		return this;
 	}
 
-	public Dashboard setAutoHide(boolean autoHide) {
-		this.autoHide = autoHide;
-		return this;
-	}
-
-	public boolean isAutoHide() {
-		return autoHide;
-	}
-
 }
 
 class Handler {
@@ -577,8 +551,8 @@ class Handler {
 		// + widget.getOwner().getName() + " test against "
 		// + this.hover.getName());
 
-		if (widget.isEmpty() || widget.isFixed()) {
-			// System.out.println("Widget is EMPTY or FIXED, rejected.");
+		if (widget.isEmpty()) {
+			// System.out.println("Widget is EMPTY, rejected.");
 			return;
 		}
 		if (hover.isEmpty() || hover.isBackground()) {

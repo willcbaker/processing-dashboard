@@ -48,7 +48,7 @@ public class Animation extends Thread {
 	 * @param duration
 	 *            the length of time in milliseconds
 	 */
-	public Animation(long duration) {
+	public Animation(final long duration) {
 		super();
 		this._duration = duration;
 		setName("Delay_" + duration);
@@ -56,6 +56,7 @@ public class Animation extends Thread {
 
 	public Animation(final Dashboard dash, final long duration) {
 		_wait = 20;
+		widgets.addAll(dash.getWidgets());
 		try {
 			widget = dash.getOwner();
 			setName(widget.getName());
@@ -84,6 +85,7 @@ public class Animation extends Thread {
 	}
 
 	public Animation(final Widget widg, final long duration) {
+		widgets.add(widg);
 		_wait = 20;
 		setName(widg.getName());
 		widget = widg;
@@ -179,6 +181,7 @@ public class Animation extends Thread {
 		System.out.println("Quitting.");
 		running = false; // Setting running to false ends the loop in run()
 		// IUn case the thread is waiting. . .
+		// TODO: finish();
 		interrupt();
 	}
 
@@ -187,9 +190,18 @@ public class Animation extends Thread {
 	public void run() {
 		if (widgets.isEmpty()) {
 			wait2(_duration);
-		} else {// do the old method stuff
-			while (isRecursive()) {
-				System.out.print("RUNNING?");
+		} else {
+			do {
+				while (!running) {
+
+					// Ok, let's wait for however long we should wait
+					try {
+						sleep((long) (1000 / widgets.get(0).getParent().frameRate));
+					} catch (final Exception e) {
+						// e.printStackTrace();
+					}
+				}
+				// System.out.print("RUNNING?");
 				// System.out.print(getWidget().getName() + " ");
 				// System.out.println("Time is " + timeBegin + " go until:  "
 				// + timeEnd + "." + running);
@@ -204,19 +216,16 @@ public class Animation extends Thread {
 						// wait2(_duration - _fadeIn - _fadeOut);
 						fadeOut(_fadeOut);
 						shake(shaker);
-						move(speed);
+						// move(speed);
 					} catch (final Exception e) {
 						e.printStackTrace();
 					}
+					running = false;
 				}
-				running = false;
-				try {
-					sleep((_wait));
-				} catch (final Exception e) {
-				}
-				// System.out.println(id + " thread is done!"); // The thread is
+				// System.out.println(getName() + " thread is done!"); // The
+				// thread is
 				// done when we get to the end of run()
-			}
+			} while (isRecursive());
 		}
 	}
 
@@ -250,7 +259,7 @@ public class Animation extends Thread {
 
 	}
 
-	public Animation setRecursive(boolean recursive) {
+	public Animation setRecursive(final boolean recursive) {
 		this.recursive = recursive;
 		return this;
 	}
@@ -308,13 +317,13 @@ public class Animation extends Thread {
 
 	public void trigger() {
 		if (!this.running) {
-			// timeBegin = widget.getParent().millis();
-			// timeEnd = timeBegin + _duration;
-			// timeOut = (timeEnd - _fadeOut);
+			timeBegin = widget.getParent().millis();
+			timeEnd = timeBegin + _duration;
+			timeOut = (timeEnd - _fadeOut);
 			this.running = true;
 		} else {
-			// timeEnd = widget.getParent().millis() + _duration;
-			// timeOut = (timeEnd - _fadeOut);
+			timeEnd = widget.getParent().millis() + _duration;
+			timeOut = (timeEnd - _fadeOut);
 		}
 		System.out.println(getName() + " Triggered");
 	}

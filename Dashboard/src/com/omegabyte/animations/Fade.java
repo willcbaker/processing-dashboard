@@ -15,7 +15,7 @@ public class Fade extends Animation {
 	float alphaCopy;
 	int direction;
 
-	public Fade(Widget widget) {
+	public Fade(final Widget widget) {
 		super(widget);
 		alpha.put(widget, widget.getAlpha());// save position
 		setName(widget.getName());
@@ -23,27 +23,27 @@ public class Fade extends Animation {
 
 	HashMap<Widget, Float> alpha = new HashMap<Widget, Float>();
 
-	public Fade(Dashboard dashboard) {
+	public Fade(final Dashboard dashboard) {
 		super(dashboard);
-		for (Widget widget : widgets) {
+		for (final Widget widget : widgets) {
 			alpha.put(widget, widget.getAlpha());// save positions
 		}
 		setName(dashboard.getName());
 	}
 
-	public Fade setAlpha(Float value) {
-		for (Widget widget : widgets) {
+	public Fade setAlpha(final Float value) {
+		for (final Widget widget : widgets) {
 			alpha.put(widget, value);// save to position
 		}
 		return this;
 	}
 
-	public Fade setAlpha(Widget widget, Float value) {
+	public Fade setAlpha(final Widget widget, final Float value) {
 		alpha.put(widget, value);// save to position
 		return this;
 	}
 
-	public void setFade(int INorOUT) {
+	public void setFade(final int INorOUT) {
 		direction = INorOUT;
 		setName("Fade_" + ((direction == IN) ? "IN" : "OUT") + "_"
 				+ this.getName());
@@ -51,31 +51,32 @@ public class Fade extends Animation {
 
 	@Override
 	public void run() {
-		// System.out.println("Fading " + ((direction == IN) ? "IN" : "OUT"));
+		System.out.println("Fading " + ((direction == IN) ? "IN" : "OUT"));
 		long waited = 1;
 		if (direction == OUT)
 			waited = _duration - 1;
 		else
-			for (Widget widget : widgets) {
+			for (final Widget widget : widgets) {
 				widget.setAlpha(0);
 				widget.setHidden(false);
 			}
 		while (waited < _duration && waited > 0) {
-			for (Widget widget : widgets) {
+			for (final Widget widget : widgets) {
 				widget.setAlpha(PApplet.map(waited, 0, _duration, 0,
 						alpha.get(widget)));
 				// System.out.println("Waited: " + waited + ", alpha: "
 				// + widget.getAlpha());
+
 			}
 			// Ok, let's wait for however long we should wait
 			try {
-				sleep((_wait));
+				sleep(((long) widgets.get(0).getParent().frameRate));
 				waited += _wait * direction;
 			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
-		for (Widget widget : widgets) {
+		for (final Widget widget : widgets) {
 			if (direction == IN)
 				widget.setAlpha(alpha.get(widget));
 			else {

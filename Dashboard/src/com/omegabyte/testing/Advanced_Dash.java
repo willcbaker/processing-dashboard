@@ -82,10 +82,9 @@ public class Advanced_Dash extends PApplet {
 	Phantom phantom = new Phantom(background, sliderBackground);
 
 	Dashboard menu = new Dashboard(this, "menu").add(button).add(phantom)
-			.setHidden(true)
-			// .add(new Widget(this, "slidersBackround").setBackground(true)
-			// .setSize(80, 140).addMenu(sliders).move(400, 30)
-			// .setFixed(true))
+	// .add(new Widget(this, "slidersBackround").setBackground(true)
+	// .setSize(80, 140).addMenu(sliders).move(400, 30)
+	// .setFixed(true))
 			.setBackground(background.addMenu(sliders))
 			// .lock()
 			.setMovable(true).grabThroughBackground(false);
@@ -139,7 +138,7 @@ public class Advanced_Dash extends PApplet {
 
 	// A callback is referred to by call_NAME_OF_WIDGET
 	public void call_button(final Widget widget) {
-		println("Button setMovable(" + button.isActive() + ")");
+		println("Button setMovable(: " + button.isActive() + ")");
 	}
 
 	public static void main(final String args[]) {

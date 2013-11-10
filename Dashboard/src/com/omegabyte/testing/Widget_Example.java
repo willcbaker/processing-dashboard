@@ -20,14 +20,16 @@ public class Widget_Example extends PApplet {
 	@Override
 	public void setup() {
 		size(500, 500);// processing.opengl.PGraphics3D);
-		widget.setSize(50, 50);// set the size of the widget
+		widget.setSize(200, 100);// set the size of the widget
+		widget.setText("TEST");
+		widget.setTextColor(0xFFFFFFFF);
 		widget.setPosition(100, 100);// set the position of the widget
 	}
 
 	// this is the looping function
 	@Override
 	public void draw() {
-		background(200);// redraw the background
+		background(0);// redraw the background
 		widget.draw();
 	}
 

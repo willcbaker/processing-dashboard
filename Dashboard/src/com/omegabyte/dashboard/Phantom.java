@@ -1,10 +1,8 @@
 package com.omegabyte.dashboard;
 
-import java.io.Serializable;
-
 import processing.core.PVector;
 
-public class Phantom extends Widget implements Cloneable, Serializable {
+public class Phantom extends Widget {
 
 	private final Widget one;
 	private Widget two;
@@ -16,7 +14,6 @@ public class Phantom extends Widget implements Cloneable, Serializable {
 		this.one = one;
 		this.two = two;
 		this.setFixed(true);
-		this.setEmpty(true);
 		this.setBackground(true);
 		this.setAlpha(0);
 		// this.setAlpha(50);
@@ -58,4 +55,5 @@ public class Phantom extends Widget implements Cloneable, Serializable {
 	public void rotate(final float value) {
 		orientation += value;
 	};
+
 }
