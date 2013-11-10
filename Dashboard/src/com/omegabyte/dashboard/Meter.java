@@ -1,8 +1,10 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
+
 import processing.core.PApplet;
 
-public class Meter extends Widget {
+public class Meter extends Widget implements Cloneable, Serializable {
 	// float radO = 100;
 	float radI = 80;
 	float thick = 20;

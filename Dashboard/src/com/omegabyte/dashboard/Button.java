@@ -1,9 +1,11 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class Button extends Widget {
+public class Button extends Widget implements Cloneable, Serializable {
 	boolean active = false;
 	boolean stillHover = false;
 	boolean highlight = true;
@@ -13,7 +15,7 @@ public class Button extends Widget {
 	private boolean onRelease = true;
 
 	public Button(final PApplet app) {
-		parent = app;
+		super(app);
 		// setFixed(true);
 		movable = false;
 		rotatable = false;
@@ -22,8 +24,7 @@ public class Button extends Widget {
 	}
 
 	public Button(final PApplet app, final String name) {
-		parent = app;
-		this.name = name;
+		super(app, name);
 
 		movable = false;
 		rotatable = false;

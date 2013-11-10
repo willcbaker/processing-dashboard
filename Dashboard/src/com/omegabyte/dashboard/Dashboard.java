@@ -1,11 +1,17 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class Dashboard {
+public class Dashboard implements Cloneable, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private String name;
 	private PApplet parent = null;
 	private PVector grabbed = new PVector(0, 0);

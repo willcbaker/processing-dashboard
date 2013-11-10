@@ -1,8 +1,10 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
+
 import processing.core.PApplet;
 
-public class Circle extends Widget {
+public class Donut extends Widget implements Cloneable, Serializable {
 	float radO = 100;
 	float radI = 80;
 	float thick = 5;
@@ -22,8 +24,12 @@ public class Circle extends Widget {
 	float slice = PApplet.QUARTER_PI / 2;
 	int alpha = 175;
 
-	public Circle(final PApplet app) {
-		parent = app;
+	public Donut(final PApplet app) {
+		super(app);
+	}
+
+	public Donut(final PApplet app, String name) {
+		super(app, name);
 	}
 
 	@Override
@@ -34,7 +40,7 @@ public class Circle extends Widget {
 		return radO;
 	}
 
-	public Circle setSize(final float rad) {
+	public Donut setSize(final float rad) {
 		super.setSize(rad, 0);
 		radO = rad;
 		radI = radO - thick;

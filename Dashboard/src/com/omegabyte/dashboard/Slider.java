@@ -1,8 +1,10 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
+
 import processing.core.PApplet;
 
-public class Slider extends Widget {
+public class Slider extends Widget implements Cloneable, Serializable {
 	private float value;
 	private boolean horizontal = false;
 	private final boolean hidden = false;
@@ -11,7 +13,13 @@ public class Slider extends Widget {
 	private float min;
 
 	public Slider(final PApplet app) {
-		parent = app;
+		super(app);
+		max = 100;
+		min = 0;
+	}
+
+	public Slider(PApplet app, String name) {
+		super(app, name);
 		max = 100;
 		min = 0;
 	}

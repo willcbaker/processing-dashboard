@@ -1,8 +1,10 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
+
 import processing.core.PVector;
 
-public class Phantom extends Widget {
+public class Phantom extends Widget implements Cloneable, Serializable {
 
 	private final Widget one;
 	private Widget two;

@@ -1,5 +1,6 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,7 +11,12 @@ import processing.core.PVector;
 
 import com.omegabyte.animations.Animation;
 
-public class Widget {
+public class Widget implements Cloneable, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public enum Shape {
 		circle, rectangle, custom, image, sphere
@@ -36,7 +42,7 @@ public class Widget {
 
 	protected PVector size = new PVector(0, 0);
 
-	protected PVector position = new PVector(0, 0);;
+	protected PVector position = new PVector(0, 0);
 
 	protected float minSize = 80;
 	protected float maxSize = 200;
@@ -122,6 +128,7 @@ public class Widget {
 			// System.out.println(getName() + " is HIDDEN and NOT SHOWING");
 			return;
 		}
+
 		parent.pushMatrix();
 		parent.translate(getPosition().x, getPosition().y);
 		parent.rotate(-orientation);
@@ -681,9 +688,14 @@ public class Widget {
 	}
 
 	public Widget setPosition(final PVector position) {
+		PVector old = position.get();
+		System.out.println(getName() + " old: " + old);
 		this.position = position;
+		System.out.println("pos: " + position);
+		old.sub(position);
+		System.out.println("new: " + old);
 		for (final Dashboard menu : menus)
-			menu.move(position);
+			menu.move(old);
 		return this;
 	}
 
@@ -897,4 +909,5 @@ public class Widget {
 				return true;
 		return false;
 	}
+
 }

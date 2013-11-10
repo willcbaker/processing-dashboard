@@ -1,8 +1,11 @@
 package com.omegabyte.dashboard;
 
+import java.io.Serializable;
+
 import processing.core.PApplet;
 
-public class DashedCircle extends Widget {
+//@deprecated
+public class DashedCircle extends Widget implements Cloneable, Serializable {
 	float dashWidth = 6;
 	float dashSpacing = 4;
 
